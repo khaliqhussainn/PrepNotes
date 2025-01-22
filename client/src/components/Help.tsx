@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, Linking } from "react-native";
+import { View, Text, StyleSheet, Pressable, Linking, ScrollView } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 const Help = () => {
@@ -10,79 +10,228 @@ const Help = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Help</Text>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>How to Use the App</Text>
-        <Text style={styles.sectionText}>
-          Welcome to our app! Here are some tips to get you started:
-        </Text>
-        <Text style={styles.sectionText}>
-          1. Navigate through the Courses section to access free notes and previous year question papers.
-        </Text>
-        <Text style={styles.sectionText}>
-          2. Use the settings to customize your experience.
-        </Text>
-        <Text style={styles.sectionText}>
-          3. If you need help, visit this help section.
-        </Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Help & Support</Text>
+        <Text style={styles.subtitle}>Get assistance and learn how to use the app</Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>FAQs</Text>
-        <Text style={styles.sectionText}>
-          Q: How do I change my profile picture?
-        </Text>
-        <Text style={styles.sectionText}>
-          A: Go to Profile Settings in the Settings menu.
-        </Text>
-        {/* Add more FAQs here */}
-      </View>
-
-      <Pressable style={styles.section} onPress={handleContactPress}>
-        <Text style={styles.sectionTitle}>Contact Support</Text>
-        <View style={{ flexDirection: "row", alignItems: "center" , gap: 8}}>
-            <Ionicons name="mail-outline" size={24} color="black" />
-            <Text>khaliquehussain7@gmail.com</Text>
+      <View style={styles.content}>
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="book-outline" size={24} color="#192841" />
+            </View>
+            <Text style={styles.sectionTitle}>How to Use the App</Text>
+          </View>
+          <Text style={styles.description}>
+            Welcome to our app! Here are some tips to get you started:
+          </Text>
+          <View style={styles.stepContainer}>
+            <View style={styles.step}>
+              <View style={styles.stepNumber}>
+                <Text style={styles.stepNumberText}>1</Text>
+              </View>
+              <Text style={styles.stepText}>
+                Navigate through the Courses section to access free notes and previous year question papers.
+              </Text>
+            </View>
+            <View style={styles.step}>
+              <View style={styles.stepNumber}>
+                <Text style={styles.stepNumberText}>2</Text>
+              </View>
+              <Text style={styles.stepText}>
+                Use the settings to customize your experience.
+              </Text>
+            </View>
+            <View style={styles.step}>
+              <View style={styles.stepNumber}>
+                <Text style={styles.stepNumberText}>3</Text>
+              </View>
+              <Text style={styles.stepText}>
+                If you need help, visit this help section.
+              </Text>
+            </View>
+          </View>
         </View>
-      </Pressable>
-    </View>
+
+        <View style={styles.card}>
+          <View style={styles.cardHeader}>
+            <View style={styles.iconContainer}>
+              <Ionicons name="help-circle-outline" size={24} color="#192841" />
+            </View>
+            <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+          </View>
+          
+          <View style={styles.faqItem}>
+            <Text style={styles.faqQuestion}>
+              How do I change my profile picture?
+            </Text>
+            <Text style={styles.faqAnswer}>
+              Go to Profile Settings in the Settings menu and tap on your profile image to update it.
+            </Text>
+          </View>
+          <View style={styles.faqItem}>
+            <Text style={styles.faqQuestion}>
+              How can I access course materials?
+            </Text>
+            <Text style={styles.faqAnswer}>
+              Navigate to the Courses tab and select your desired course to view available materials.
+            </Text>
+          </View>
+        </View>
+
+        <Pressable 
+          style={({pressed}) => [styles.card, styles.contactCard, pressed && styles.cardPressed]}
+          onPress={handleContactPress}
+        >
+          <View style={styles.cardHeader}>
+            <View style={[styles.iconContainer, styles.contactIcon]}>
+              <Ionicons name="mail-outline" size={24} color="#192841" />
+            </View>
+            <Text style={styles.sectionTitle}>Contact Support</Text>
+          </View>
+          <Text style={styles.description}>
+            Need additional help? Feel free to reach out to our support team.
+          </Text>
+          <View style={styles.emailContainer}>
+            <Ionicons name="mail" size={20} color="#192841" />
+            <Text style={styles.emailText}>khaliquehussain7@gmail.com</Text>
+          </View>
+        </Pressable>
+      </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f8fafc",
+  },
+  header: {
+    padding: 24,
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333",
+    color: "#192841",
+    marginBottom: 8,
   },
-  section: {
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 10,
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+  },
+  content: {
+    paddingHorizontal: 16,
+    paddingBottom: 24,
+  },
+  card: {
     backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  cardPressed: {
+    backgroundColor: "#f8fafc",
+    transform: [{ scale: 0.98 }],
+  },
+  cardHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  iconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "#f1f5f9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  contactIcon: {
+    backgroundColor: "#e2e8f0",
   },
   sectionTitle: {
-    fontSize: 18,
-    color: "#333",
-    marginBottom: 10,
-  },
-  sectionText: {
     fontSize: 16,
-    color: "#555",
-    marginBottom: 5,
+    fontWeight: "bold",
+    color: "#192841",
+  },
+  description: {
+    fontSize: 16,
+    color: "#64748b",
+    marginBottom: 16,
+    lineHeight: 24,
+  },
+  stepContainer: {
+    gap: 16,
+  },
+  step: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  stepNumber: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "#192841",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  stepNumberText: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "bold",
+  },
+  stepText: {
+    flex: 1,
+    fontSize: 16,
+    color: "#334155",
+    lineHeight: 24,
+  },
+  faqItem: {
+    marginBottom: 16,
+    padding: 16,
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  faqQuestion: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#192841",
+    marginBottom: 8,
+  },
+  faqAnswer: {
+    fontSize: 15,
+    color: "#64748b",
+    lineHeight: 22,
+  },
+  contactCard: {
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+  },
+  emailContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+    padding: 16,
+    borderRadius: 12,
+    gap: 12,
+  },
+  emailText: {
+    fontSize: 16,
+    color: "#192841",
+    fontWeight: "500",
   },
 });
 

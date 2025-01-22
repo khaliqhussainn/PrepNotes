@@ -29,6 +29,7 @@ import Btech from "./src/courses/main/Btech";
 import Settings from "./src/components/Settings";
 import Profile from "./src/components/Profile";
 import Help from "./src/components/Help";
+import StudyPlanner from "./src/components/StudyPlanner";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaKUlMrVl5jcvdSXM2VtOiyuQcYeuqIkM",
@@ -162,6 +163,7 @@ const App = () => {
             <Stack.Screen name="Settings" component={Settings} />
             <Stack.Screen name="Help" component={Help} />
             <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
           </>
         ) : (
           <Stack.Screen name="Auth" options={{ headerShown: false }}>

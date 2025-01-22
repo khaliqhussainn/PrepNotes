@@ -27,19 +27,38 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  limits: { fileSize: 100 * 1024 * 1024 } // 100MB
+});
 
 // Enhanced error handling
 const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
+// Middleware to handle Multer errors
+app.use((err, req, res, next) => {
+  if (err instanceof multer.MulterError) {
+    // A Multer error occurred when uploading.
+    res.status(400).json({ message: err.message });
+  } else {
+    // Pass the error to the next middleware
+    next(err);
+  }
+});
+
 // Get all files with combined data from Cloudinary and database
 app.get(
   "/api/files",
   asyncHandler(async (req, res) => {
+    const { year } = req.query;
+
     // Fetch files from database
     const dbFiles = await prisma.note.findMany({
+      where: {
+        year: year ? year : undefined,
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -55,7 +74,7 @@ app.get(
       const cloudinaryFile = cloudinaryFiles.resources.find(
         cf => cf.secure_url === dbFile.fileUrl
       );
-      
+
       return {
         ...dbFile,
         cloudinaryData: cloudinaryFile || {},
@@ -104,29 +123,38 @@ app.post(
 
     const { title, year, subject, course, type, folder } = req.body;
 
-    // Upload to Cloudinary
-    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw",
-      folder: folder || "uploads",
-    });
+    try {
+      console.log("Uploading file to Cloudinary:", req.file.path);
 
-    // Save to database
-    const note = await prisma.note.create({
-      data: {
-        title: title || req.file.originalname,
-        fileUrl: cloudinaryResult.secure_url,
-        year,
-        subject,
-        course,
-        type: type || "notes",
-        folder: folder || "Uncategorized",
-      },
-    });
+      // Upload to Cloudinary
+      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+        resource_type: "raw",
+        folder: folder || "uploads",
+      });
 
-    // Clean up uploaded file
-    fs.unlinkSync(req.file.path);
+      console.log("Cloudinary upload result:", cloudinaryResult);
 
-    res.json(note);
+      // Save to database
+      const note = await prisma.note.create({
+        data: {
+          title: title || req.file.originalname,
+          fileUrl: cloudinaryResult.secure_url,
+          year,
+          subject,
+          course,
+          type: type || "notes",
+          folder: folder || "Uncategorized",
+        },
+      });
+
+      // Clean up uploaded file
+      fs.unlinkSync(req.file.path);
+
+      res.json(note);
+    } catch (error) {
+      console.error("Error uploading file to Cloudinary:", error);
+      throw new Error("Failed to upload file to Cloudinary: " + error.message);
+    }
   })
 );
 

@@ -5,43 +5,64 @@ import {
   Text,
   View,
   FlatList,
-  Image,
+  Dimensions,
+  Platform,
 } from "react-native";
-import LeftSidebar from "./components/LeftSideBar";  // Import the LeftSidebar component
+import LeftSidebar from "./components/LeftSideBar";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getAuth, signOut } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import StudyPlanner from './components/StudyPlanner'; // Import the StudyPlanner component
+import Navbar from "./components/Navbar";
+// import GroupChat from "./components/GroupChat"; // Import the GroupChat component
+
+const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const auth = getAuth();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Sidebar toggle state
-  const [user, setUser] = useState(null); // State to store user information
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [user, setUser] = useState(null);
 
-  // Dummy course data (with image URLs)
   const courses = [
     {
       id: 1,
       name: "Courses",
       image: "https://link-to-react-native-image.jpg",
       link: "Courses",
+      icon: "book-outline",
     },
     {
       id: 2,
       name: "Roadmaps",
       image: "https://link-to-js-image.jpg",
       link: "Roadmaps",
+      icon: "map-outline",
     },
     {
       id: 3,
       name: "JHU Entrance PYQ",
       image: "https://link-to-firebase-image.jpg",
       link: "Entrance",
+      icon: "school-outline",
+    },
+    {
+      id: 4,
+      name: "Study Planner",
+      image: "https://link-to-study-planner-image.jpg",
+      link: "StudyPlanner",
+      icon: "calendar-outline",
+    },
+    {
+      id: 5,
+      name: "Group Chat",
+      image: "https://link-to-group-chat-image.jpg",
+      link: "GroupChat",
+      icon: "chatbubbles-outline",
     },
   ];
 
-  // Fetch current user information
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -52,53 +73,22 @@ const HomeScreen = () => {
     }
   }, []);
 
-  // Logout function
-  const handleLogout = async () => {
-    try {
-      await signOut(auth); // Log out the user
-      console.log("User logged out successfully!");
-      navigation.replace("Auth");
-    } catch (error) {
-      console.error("Error logging out:", error.message);
-    }
-  };
-
-  // Render each course with image and navigation link
   const renderCourse = ({ item }) => (
     <Pressable
       style={styles.courseContainer}
       onPress={() => navigation.navigate(item.link)}
     >
-      {/* <Image source={{ uri: item.image }} style={styles.courseImage} /> */}
+      <View style={styles.courseIconContainer}>
+        <Ionicons name={item.icon} size={40} color="#fff" />
+      </View>
       <Text style={styles.courseName}>{item.name}</Text>
     </Pressable>
   );
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        {/* Toggle Sidebar */}
-        <Pressable onPress={() => setIsSidebarOpen(!isSidebarOpen)}>
-          <Ionicons name="menu-outline" size={30} color="#fff" />
-        </Pressable>
-        <View style={styles.topButtons}>
-          <Pressable
-            style={styles.iconButton}
-            onPress={() => navigation.navigate("Courses")}
-          >
-            <Ionicons name="book-outline" size={24} color="white" />
-            <Text style={styles.iconButtonText}>Courses</Text>
-          </Pressable>
+      <Navbar />
 
-          <Pressable style={styles.iconButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
-            <Text style={styles.iconButtonText}>Logout</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {/* Sidebar */}
       {isSidebarOpen && (
         <LeftSidebar
           isSidebarOpen={isSidebarOpen}
@@ -108,17 +98,16 @@ const HomeScreen = () => {
         />
       )}
 
-      {/* Main content (dimmed when sidebar is open) */}
       <View style={[styles.mainContent, isSidebarOpen && styles.dimmedContent]}>
         <FlatList
           data={courses}
           renderItem={renderCourse}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={styles.coursesList}
+          showsVerticalScrollIndicator={false}
         />
       </View>
 
-      {/* Bottom Section */}
       <View style={styles.bottomSection}>
         <Pressable
           style={styles.bottomButton}
@@ -145,7 +134,7 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f7f7f7",
+    backgroundColor: "#f0f2f5",
   },
   header: {
     flexDirection: "row",
@@ -153,21 +142,44 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     backgroundColor: "#192841",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.1)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  menuButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
   },
   topButtons: {
     flexDirection: "row",
+    gap: 12,
   },
   iconButton: {
     flexDirection: "row",
     alignItems: "center",
-    marginLeft: 10,
-    padding: 10,
-    backgroundColor: "#2c3e50",
-    borderRadius: 5,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
   iconButtonText: {
     color: "white",
-    marginLeft: 5,
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
   },
   mainContent: {
     flex: 1,
@@ -175,52 +187,83 @@ const styles = StyleSheet.create({
   },
   dimmedContent: {
     opacity: 0.3,
-  },
-  courseContainer: {
-    marginBottom: 20,
-    alignItems: "center",
-    borderColor: "#ddd",
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 16,
-    backgroundColor: "#192841",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  // courseImage: {
-  //   width: 100,
-  //   height: 100,
-  //   marginBottom: 10,
-  //   borderRadius: 50,
-  // },
-  courseName: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    width: "100%",
-    height: 110,
-    textAlign: "center",
-    lineHeight: 100, // Vertically Center
-  
+    backgroundColor: "rgba(0,0,0,0.5)",
   },
   coursesList: {
     padding: 16,
+    gap: 16,
+  },
+  courseContainer: {
+    backgroundColor: "#192841",
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
+    width: width - 32,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
+  },
+  courseIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  courseName: {
+    fontSize: 20,
+    fontWeight: "600",
+    color: "#fff",
+    textAlign: "center",
+    letterSpacing: 0.5,
   },
   bottomSection: {
     flexDirection: "row",
     justifyContent: "space-around",
     backgroundColor: "#192841",
     padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.1)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
   },
   bottomButton: {
     flexDirection: "row",
     alignItems: "center",
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    backgroundColor: "rgba(255,255,255,0.1)",
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
   },
   bottomButtonText: {
     color: "white",
-    marginLeft: 5,
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

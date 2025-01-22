@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TextInput, Button, StyleSheet, Pressable, Alert } from "react-native";
+import { View, Text, Image, TextInput, StyleSheet, Pressable, Alert, ScrollView } from "react-native";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
+
 const Profile = () => {
   const navigation = useNavigation();
   const auth = getAuth();
@@ -12,7 +13,6 @@ const Profile = () => {
   const [course, setCourse] = useState("");
   const [image, setImage] = useState(null);
 
-  // Fetch current user information
   useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
@@ -26,14 +26,12 @@ const Profile = () => {
     }
   }, [auth.currentUser]);
 
-  // Logout function
   const handleLogout = async () => {
     try {
-      await signOut(auth); // Log out the user
-      console.log("User logged out successfully!");
+      await signOut(auth);
       navigation.navigate("Auth");
     } catch (error) {
-      console.error("Error logging out:", error.message);
+      Alert.alert("Error", error.message);
     }
   };
 
@@ -44,15 +42,12 @@ const Profile = () => {
         displayName: name,
         photoURL: image ? image : user.imageUrl,
       }).then(() => {
-        console.log("Profile updated successfully!");
-        console.log("Name:", name);
-        console.log("Course:", course);
-        console.log("Image URL:", image ? image : user.imageUrl);
         setUser({
           name: name,
           email: currentUser.email,
           imageUrl: image ? image : user.imageUrl,
         });
+        Alert.alert("Success", "Profile updated successfully!");
       }).catch((error) => {
         Alert.alert("Error", error.message);
       });
@@ -63,7 +58,7 @@ const Profile = () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [1, 1],
       quality: 1,
     });
 
@@ -73,137 +68,246 @@ const Profile = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Profile</Text>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Profile</Text>
+        <Text style={styles.subtitle}>Manage your profile information</Text>
+      </View>
 
-      {/* User Profile Section */}
-      <View style={styles.userInfo}>
-        <Pressable onPress={pickImage}>
-          <Image
-            source={{ uri: image ? image : user?.imageUrl }}
-            style={styles.profileImage}
-            alt="profile"
+      <View style={styles.card}>
+        <View style={styles.userInfo}>
+          <Pressable onPress={pickImage} style={styles.imageContainer}>
+            <Image
+              source={{ uri: image ? image : user?.imageUrl }}
+              style={styles.profileImage}
+              alt="profile"
+            />
+            <View style={styles.imageOverlay}>
+              <Ionicons name="camera" size={24} color="#fff" />
+            </View>
+          </Pressable>
+          <View style={styles.userDetails}>
+            <Text style={styles.userName}>{user?.name}</Text>
+            <Text style={styles.userEmail}>{user?.email}</Text>
+          </View>
+        </View>
+
+        <View style={styles.inputContainer}>
+          <Text style={styles.inputLabel}>Full Name</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your name"
+            value={name}
+            onChangeText={setName}
+            placeholderTextColor="#666"
           />
-        </Pressable>
-        <View style={styles.userDetails}>
-          <Text style={styles.userName}>{user?.name}</Text>
-          <Text style={styles.userEmail}>{user?.email}</Text>
+          
+          <Text style={styles.inputLabel}>Course</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Enter your course"
+            value={course}
+            onChangeText={setCourse}
+            placeholderTextColor="#666"
+          />
+
+          <Pressable 
+            style={({pressed}) => [styles.saveButton, pressed && styles.buttonPressed]}
+            onPress={handleUpdateProfile}
+          >
+            <Text style={styles.saveButtonText}>Save Changes</Text>
+          </Pressable>
         </View>
       </View>
 
-      {/* Edit Name and Course */}
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Name"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Course"
-          value={course}
-          onChangeText={setCourse}
-        />
-        <Button title="Save Changes" onPress={handleUpdateProfile} />
-      </View>
+      <View style={styles.card}>
+        <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <View style={styles.optionsContainer}>
+          <Pressable 
+            style={({pressed}) => [styles.option, pressed && styles.optionPressed]}
+            onPress={() => navigation.navigate("Help")}
+          >
+            <View style={styles.optionIcon}>
+              <Ionicons name="help-circle" size={24} color="#192841" />
+            </View>
+            <View style={styles.optionContent}>
+              <Text style={styles.optionTitle}>Help & Support</Text>
+              <Text style={styles.optionDescription}>Get assistance and answers to your questions</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#192841" />
+          </Pressable>
 
-      {/* Additional Options */}
-      <View style={styles.optionsContainer}>
-        {/* <Pressable style={styles.option} onPress={() => navigation.navigate("Feedback")}>
-          <Ionicons name="chatbox-outline" size={24} color="black" />
-          <Text style={styles.optionText}>Feedback</Text>
-        </Pressable>
-        <Pressable style={styles.option} onPress={() => navigation.navigate("Location")}>
-          <Ionicons name="location-outline" size={24} color="black" />
-          <Text style={styles.optionText}>Location</Text>
-        </Pressable> */}
-        <Pressable style={styles.option} onPress={() => navigation.navigate("Help")}>
-          <Ionicons name="help-outline" size={24} color="black" />
-          <Text style={styles.optionText}>Help</Text>
-        </Pressable>
+          <Pressable 
+            style={({pressed}) => [styles.option, pressed && styles.optionPressed]}
+            onPress={handleLogout}
+          >
+            <View style={styles.optionIcon}>
+              <Ionicons name="log-out" size={24} color="#dc2626" />
+            </View>
+            <View style={styles.optionContent}>
+              <Text style={[styles.optionTitle, styles.logoutText]}>Logout</Text>
+              <Text style={styles.optionDescription}>Sign out from your account</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={24} color="#dc2626" />
+          </Pressable>
+        </View>
       </View>
-
-      {/* Logout Button */}
-      <Button title="Logout" onPress={handleLogout} />
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f8fafc",
+  },
+  header: {
+    padding: 24,
+    paddingBottom: 16,
   },
   title: {
-    fontSize: 24,
+    fontSize: 32,
     fontWeight: "bold",
-    marginBottom: 20,
-    color: "#333",
+    color: "#192841",
+    marginBottom: 8,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: "#64748b",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 16,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
   },
   userInfo: {
-    flexDirection: "row",
     alignItems: "center",
-    marginBottom: 30,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
+    marginBottom: 24,
+  },
+  imageContainer: {
+    position: "relative",
+    marginBottom: 16,
   },
   profileImage: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    marginRight: 15,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: "#fff",
+  },
+  imageOverlay: {
+    position: "absolute",
+    right: 0,
+    bottom: 0,
+    backgroundColor: "#192841",
+    borderRadius: 20,
+    padding: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   userDetails: {
-    flex: 1,
+    alignItems: "center",
   },
   userName: {
-    fontSize: 18,
+    fontSize: 24,
     fontWeight: "bold",
-    color: "#333",
+    color: "#192841",
+    marginBottom: 4,
   },
   userEmail: {
-    fontSize: 14,
-    color: "#555",
+    fontSize: 16,
+    color: "#64748b",
   },
   inputContainer: {
-    marginBottom: 20,
+    gap: 12,
+  },
+  inputLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#192841",
+    marginBottom: -4,
   },
   input: {
-    height: 40,
-    borderColor: "gray",
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    padding: 16,
+    fontSize: 16,
+    color: "#192841",
     borderWidth: 1,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    borderRadius: 5,
+    borderColor: "#e2e8f0",
+  },
+  saveButton: {
+    backgroundColor: "#192841",
+    borderRadius: 12,
+    padding: 16,
+    alignItems: "center",
+    marginTop: 8,
+  },
+  buttonPressed: {
+    backgroundColor: "#253a5c",
+    transform: [{ scale: 0.98 }],
+  },
+  saveButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#192841",
+    marginBottom: 16,
   },
   optionsContainer: {
-    marginBottom: 20,
+    gap: 12,
   },
   option: {
     flexDirection: "row",
     alignItems: "center",
-    marginVertical: 10,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 1, height: 1 },
-    shadowOpacity: 0.3,
-    shadowRadius: 2,
-    elevation: 2,
+    padding: 16,
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
   },
-  optionText: {
+  optionPressed: {
+    backgroundColor: "#f1f5f9",
+    transform: [{ scale: 0.98 }],
+  },
+  optionIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 12,
+  },
+  optionContent: {
+    flex: 1,
+  },
+  optionTitle: {
     fontSize: 16,
-    color: "#333",
-    marginLeft: 10,
+    fontWeight: "600",
+    color: "#192841",
+    marginBottom: 2,
+  },
+  optionDescription: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  logoutText: {
+    color: "#dc2626",
   },
 });
 

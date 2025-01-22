@@ -12,6 +12,8 @@ import LeftSidebar from "../components/LeftSideBar";
 import Settings from "../components/Settings";
 import Help from "../components/Help";
 import Profile from "../components/Profile";
+import StudyPlanner from "../components/StudyPlanner";
+// import GroupChat from "../components/GroupChat";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -41,6 +43,8 @@ const StackNavigator = () => {
         <Stack.Screen name="Settings" component={Settings} />
         <Stack.Screen name="Help" component={Help} />
         <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
+        {/* <Stack.Screen name="GroupChat" component={GroupChat} /> */}
       </Stack.Navigator>
     </NavigationContainer>
   );
