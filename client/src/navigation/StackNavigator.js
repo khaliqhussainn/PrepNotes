@@ -13,7 +13,7 @@ import Settings from "../components/Settings";
 import Help from "../components/Help";
 import Profile from "../components/Profile";
 import StudyPlanner from "../components/StudyPlanner";
-// import GroupChat from "../components/GroupChat";
+import GroupChat from "../components/GroupChat";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -36,15 +36,15 @@ const StackNavigator = () => {
           component={Main}
           options={{ headerShown: false }}
         />
-        <Stack.Screen name="BCA" component={Bca} />
-        <Stack.Screen name="BSC" component={Bca} />
-        <Stack.Screen name="BTECH" component={Btech} />
+        <Stack.Screen name="BCA" options={{ headerShown: false }} component={Bca} />
+        <Stack.Screen name="BSC" options={{ headerShown: false }} component={Bca} />
+        <Stack.Screen name="BTECH" options={{ headerShown: false }} component={Btech} />
         {/* <Stack.Screen name="LeftSidebar" component={LeftSidebar} /> */}
-        <Stack.Screen name="Settings" component={Settings} />
-        <Stack.Screen name="Help" component={Help} />
-        <Stack.Screen name="Profile" component={Profile} />
+        <Stack.Screen name="Settings" options={{ headerShown: false }} component={Settings} />
+        <Stack.Screen name="Help" options={{ headerShown: false }} component={Help} />
+        <Stack.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
         <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
-        {/* <Stack.Screen name="GroupChat" component={GroupChat} /> */}
+        <Stack.Screen name="GroupChat" options={{ headerShown: false }} component={GroupChat} />
       </Stack.Navigator>
     </NavigationContainer>
   );

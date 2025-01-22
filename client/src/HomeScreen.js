@@ -15,7 +15,7 @@ import { getAuth, signOut } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import StudyPlanner from './components/StudyPlanner'; // Import the StudyPlanner component
 import Navbar from "./components/Navbar";
-// import GroupChat from "./components/GroupChat"; // Import the GroupChat component
+import GroupChat from "./components/GroupChat"; // Import the GroupChat component
 
 const { width } = Dimensions.get('window');
 
@@ -125,6 +125,14 @@ const HomeScreen = () => {
           <Text style={styles.bottomButtonText}>Help</Text>
         </Pressable>
       </View>
+
+      {/* Floating Action Button for Group Chat */}
+      <Pressable
+        style={styles.fab}
+        onPress={() => navigation.navigate("GroupChat")}
+      >
+        <Ionicons name="chatbubbles-outline" size={24} color="white" />
+      </Pressable>
     </SafeAreaView>
   );
 };
@@ -265,5 +273,27 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     fontSize: 16,
     fontWeight: "500",
+  },
+  fab: {
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    backgroundColor: "#192841",
+    borderRadius: 50,
+    width: 60,
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4.65,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
 });

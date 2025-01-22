@@ -1,5 +1,4 @@
-// Navbar.js
-import React, { useState , useEffect} from "react";
+import React, { useState, useEffect } from "react";
 import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useNavigation } from "@react-navigation/native";
@@ -10,10 +9,9 @@ const Navbar = () => {
   const navigation = useNavigation();
   const auth = getAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [user, setUser] = useState(null);
-  
+  const [user, setUser] = useState(null);
 
-useEffect(() => {
+  useEffect(() => {
     const currentUser = auth.currentUser;
     if (currentUser) {
       setUser({
@@ -27,7 +25,7 @@ useEffect(() => {
     try {
       await signOut(auth);
       console.log("User logged out successfully!");
-      navigation.replace("Auth");
+      // navigation.replace("Auth"); // Remove this line
     } catch (error) {
       console.error("Error logging out:", error.message);
     }
@@ -44,7 +42,6 @@ useEffect(() => {
       <Text style={styles.courseName}>{item.name}</Text>
     </Pressable>
   );
-
 
   return (
     <>

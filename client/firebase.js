@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { initializeApp } from "@firebase/app";
+import { initializeApp, getApps } from "@firebase/app";
 import {
   getAuth,
   initializeAuth,
@@ -30,6 +30,7 @@ import Settings from "./src/components/Settings";
 import Profile from "./src/components/Profile";
 import Help from "./src/components/Help";
 import StudyPlanner from "./src/components/StudyPlanner";
+import GroupChat from "./src/components/GroupChat";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaKUlMrVl5jcvdSXM2VtOiyuQcYeuqIkM",
@@ -39,12 +40,21 @@ const firebaseConfig = {
   messagingSenderId: "829586813569",
   appId: "1:829586813569:web:5558667e891b498214d380",
   measurementId: "G-ZCBMBC4X3E",
+  databaseURL: "https://notesapp-1cf66-default-rtdb.firebaseio.com"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage),
-});
+let app;
+let auth;
+
+if (getApps().length === 0) {
+  app = initializeApp(firebaseConfig);
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} else {
+  app = getApps()[0];
+  auth = getAuth(app);
+}
 
 const Stack = createNativeStackNavigator();
 
@@ -103,7 +113,6 @@ const AuthScreen = ({
 const HomeScreen = ({ navigation }) => {
   const handleLogout = async () => {
     await signOut(auth);
-    navigation.navigate("Auth");
   };
 
   return (
@@ -157,12 +166,13 @@ const App = () => {
               component={Main}
               options={{ headerShown: false }}
             />
-            <Stack.Screen name="BCA" component={Bca} />
-            <Stack.Screen name="BSC" component={Bsc} />
-            <Stack.Screen name="BTECH" component={Btech} />
-            <Stack.Screen name="Settings" component={Settings} />
-            <Stack.Screen name="Help" component={Help} />
-            <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="BCA" options={{ headerShown: false }} component={Bca} />
+            <Stack.Screen name="BSC" options={{ headerShown: false }} component={Bsc} />
+            <Stack.Screen name="BTECH" options={{ headerShown: false }} component={Btech} />
+            <Stack.Screen name="Settings" options={{ headerShown: false }} component={Settings} />
+            <Stack.Screen name="Help" options={{ headerShown: false }} component={Help} />
+            <Stack.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
+            <Stack.Screen name="GroupChat" options={{ headerShown: false }} component={GroupChat} />
             <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
           </>
         ) : (
