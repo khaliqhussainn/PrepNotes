@@ -31,6 +31,8 @@ import Profile from "./src/components/Profile";
 import Help from "./src/components/Help";
 import StudyPlanner from "./src/components/StudyPlanner";
 import GroupChat from "./src/components/GroupChat";
+import AIStudentHelper from "./src/components/AIStudentHelper";
+import Roadmap from "./src/components/Roadmap";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDaKUlMrVl5jcvdSXM2VtOiyuQcYeuqIkM",
@@ -174,6 +176,8 @@ const App = () => {
             <Stack.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
             <Stack.Screen name="GroupChat" options={{ headerShown: false }} component={GroupChat} />
             <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
+            <Stack.Screen name="AIStudentHelper" options={{ headerShown: false }} component={AIStudentHelper} />
+            <Stack.Screen name="Roadmap" options={{ headerShown: false }} component={Roadmap} />
           </>
         ) : (
           <Stack.Screen name="Auth" options={{ headerShown: false }}>

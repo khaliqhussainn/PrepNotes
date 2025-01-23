@@ -115,6 +115,7 @@ const MainScreen = ({ navigation }) => {
           />
         ))}
       </ScrollView>
+      
     </SafeAreaView>
   );
 };

@@ -13,9 +13,9 @@ import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { getAuth, signOut } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import StudyPlanner from './components/StudyPlanner'; // Import the StudyPlanner component
+import StudyPlanner from './components/StudyPlanner';
 import Navbar from "./components/Navbar";
-import GroupChat from "./components/GroupChat"; // Import the GroupChat component
+import GroupChat from "./components/GroupChat";
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +24,7 @@ const HomeScreen = () => {
   const auth = getAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [activeTab, setActiveTab] = useState('Home');
 
   const courses = [
     {
@@ -37,7 +38,7 @@ const HomeScreen = () => {
       id: 2,
       name: "Roadmaps",
       image: "https://link-to-js-image.jpg",
-      link: "Roadmaps",
+      link: "Roadmap",
       icon: "map-outline",
     },
     {
@@ -87,53 +88,102 @@ const HomeScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Navbar />
+    <Navbar />
 
-      {isSidebarOpen && (
-        <LeftSidebar
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          user={user}
-          navigation={navigation}
-        />
-      )}
+    {isSidebarOpen && (
+      <LeftSidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        user={user}
+        navigation={navigation}
+      />
+    )}
 
-      <View style={[styles.mainContent, isSidebarOpen && styles.dimmedContent]}>
-        <FlatList
-          data={courses}
-          renderItem={renderCourse}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.coursesList}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+    <View style={[styles.mainContent, isSidebarOpen && styles.dimmedContent]}>
+      <FlatList
+        data={courses}
+        renderItem={renderCourse}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={styles.coursesList}
+        showsVerticalScrollIndicator={false}
+      />
+    </View>
 
-      <View style={styles.bottomSection}>
-        <Pressable
-          style={styles.bottomButton}
-          onPress={() => navigation.navigate("Profile")}
-        >
-          <Ionicons name="person-outline" size={24} color="white" />
-          <Text style={styles.bottomButtonText}>Profile</Text>
-        </Pressable>
-
-        <Pressable
-          style={styles.bottomButton}
-          onPress={() => navigation.navigate("Help")}
-        >
-          <Ionicons name="help-outline" size={24} color="white" />
-          <Text style={styles.bottomButtonText}>Help</Text>
-        </Pressable>
-      </View>
-
-      {/* Floating Action Button for Group Chat */}
-      <Pressable
-        style={styles.fab}
-        onPress={() => navigation.navigate("GroupChat")}
+    {/* New Bottom Navigation Bar */}
+    <View style={styles.bottomNavigationBar}>
+      <Pressable 
+        style={[
+          styles.bottomNavItem, 
+          activeTab === 'Home' && styles.activeNavItem
+        ]}
+        onPress={() => {
+          setActiveTab('Home');
+          navigation.navigate('Home');
+        }}
       >
-        <Ionicons name="chatbubbles-outline" size={24} color="white" />
+        <Ionicons 
+          name={activeTab === 'Home' ? "home" : "home-outline"} 
+          size={24} 
+          color="white" 
+        />
+        <Text style={styles.bottomNavText}>Home</Text>
       </Pressable>
-    </SafeAreaView>
+
+      <Pressable 
+        style={[
+          styles.bottomNavItem, 
+          activeTab === 'Courses' && styles.activeNavItem
+        ]}
+        onPress={() => {
+          setActiveTab('Courses');
+          navigation.navigate('Courses');
+        }}
+      >
+        <Ionicons 
+          name={activeTab === 'Courses' ? "book" : "book-outline"} 
+          size={24} 
+          color="white" 
+        />
+        <Text style={styles.bottomNavText}>Courses</Text>
+      </Pressable>
+
+      <Pressable 
+        style={[
+          styles.bottomNavItem, 
+          activeTab === 'Chat' && styles.activeNavItem
+        ]}
+        onPress={() => {
+          setActiveTab('Chat');
+          navigation.navigate('GroupChat');
+        }}
+      >
+        <Ionicons 
+          name={activeTab === 'Chat' ? "chatbubbles" : "chatbubbles-outline"} 
+          size={24} 
+          color="white" 
+        />
+        <Text style={styles.bottomNavText}>Chat</Text>
+      </Pressable>
+
+      <Pressable 
+        style={[
+          styles.bottomNavItem, 
+          activeTab === 'Profile' && styles.activeNavItem
+        ]}
+        onPress={() => {
+          setActiveTab('Profile');
+          navigation.navigate('Profile');
+        }}
+      >
+        <Ionicons 
+          name={activeTab === 'Profile' ? "person" : "person-outline"} 
+          size={24} 
+          color="white" 
+        />
+        <Text style={styles.bottomNavText}>Profile</Text>
+      </Pressable>
+    </View>
+  </SafeAreaView>
   );
 };
 
@@ -295,5 +345,42 @@ const styles = StyleSheet.create({
         elevation: 8,
       },
     }),
+  },
+  bottomNavigationBar: {
+    flexDirection: 'row',
+    backgroundColor: '#192841',
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+    }),
+  },
+  bottomNavItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 8,
+  },
+  activeNavItem: {
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
+  bottomNavText: {
+    color: 'white',
+    marginTop: 4,
+    fontSize: 12,
+    fontWeight: '500',
   },
 });

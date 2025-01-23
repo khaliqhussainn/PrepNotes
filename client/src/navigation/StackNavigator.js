@@ -14,6 +14,8 @@ import Help from "../components/Help";
 import Profile from "../components/Profile";
 import StudyPlanner from "../components/StudyPlanner";
 import GroupChat from "../components/GroupChat";
+import AIStudentHelper from "../components/AIStudentHelper";
+import Roadmap from "../components/Roadmap";
 
 const StackNavigator = () => {
   const Stack = createNativeStackNavigator();
@@ -45,6 +47,8 @@ const StackNavigator = () => {
         <Stack.Screen name="Profile" options={{ headerShown: false }} component={Profile} />
         <Stack.Screen name="StudyPlanner" options={{ headerShown: false }} component={StudyPlanner} />
         <Stack.Screen name="GroupChat" options={{ headerShown: false }} component={GroupChat} />
+        <Stack.Screen name="AIStudentHelper" options={{ headerShown: false }} component={AIStudentHelper} />
+        <Stack.Screen name="Roadmap" options={{ headerShown: false }} component={Roadmap} />  
       </Stack.Navigator>
     </NavigationContainer>
   );
