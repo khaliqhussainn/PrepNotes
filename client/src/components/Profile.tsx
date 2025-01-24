@@ -1,9 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TextInput, StyleSheet, Pressable, Alert, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  StyleSheet,
+  Pressable,
+  Alert,
+  ScrollView,
+} from "react-native";
 import { getAuth, signOut, updateProfile } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
   const navigation = useNavigation();
@@ -19,7 +29,8 @@ const Profile = () => {
       setUser({
         name: currentUser.displayName || "User",
         email: currentUser.email,
-        imageUrl: currentUser.photoURL || "../../assets/icons/profile-placeholder.svg",
+        imageUrl:
+          currentUser.photoURL || "../../assets/profile-photo.jpg",
       });
       setName(currentUser.displayName || "");
       setCourse("");
@@ -41,16 +52,18 @@ const Profile = () => {
       updateProfile(currentUser, {
         displayName: name,
         photoURL: image ? image : user.imageUrl,
-      }).then(() => {
-        setUser({
-          name: name,
-          email: currentUser.email,
-          imageUrl: image ? image : user.imageUrl,
+      })
+        .then(() => {
+          setUser({
+            name: name,
+            email: currentUser.email,
+            imageUrl: image ? image : user.imageUrl,
+          });
+          Alert.alert("Success", "Profile updated successfully!");
+        })
+        .catch((error) => {
+          Alert.alert("Error", error.message);
         });
-        Alert.alert("Success", "Profile updated successfully!");
-      }).catch((error) => {
-        Alert.alert("Error", error.message);
-      });
     }
   };
 
@@ -68,95 +81,116 @@ const Profile = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Profile</Text>
-        <Text style={styles.subtitle}>Manage your profile information</Text>
-      </View>
+    <SafeAreaView style={styles.safeArea}>
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.subtitle}>Manage your profile information</Text>
+        </View>
 
-      <View style={styles.card}>
-        <View style={styles.userInfo}>
-          <Pressable onPress={pickImage} style={styles.imageContainer}>
-            <Image
-              source={{ uri: image ? image : user?.imageUrl }}
-              style={styles.profileImage}
-              alt="profile"
-            />
-            <View style={styles.imageOverlay}>
-              <Ionicons name="camera" size={24} color="#fff" />
+        <View style={styles.card}>
+          <View style={styles.userInfo}>
+            <Pressable onPress={pickImage} style={styles.imageContainer}>
+              <Image
+                source={{ uri: image ? image : user?.imageUrl }}
+                style={styles.profileImage}
+                alt="profile"
+              />
+              <View style={styles.imageOverlay}>
+                <Ionicons name="camera" size={24} color="#fff" />
+              </View>
+            </Pressable>
+            <View style={styles.userDetails}>
+              <Text style={styles.userName}>{user?.name}</Text>
+              <Text style={styles.userEmail}>{user?.email}</Text>
             </View>
-          </Pressable>
-          <View style={styles.userDetails}>
-            <Text style={styles.userName}>{user?.name}</Text>
-            <Text style={styles.userEmail}>{user?.email}</Text>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Full Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your name"
+              value={name}
+              onChangeText={setName}
+              placeholderTextColor="#666"
+            />
+
+            <Text style={styles.inputLabel}>Course</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your course"
+              value={course}
+              onChangeText={setCourse}
+              placeholderTextColor="#666"
+            />
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.saveButton,
+                pressed && styles.buttonPressed,
+              ]}
+              onPress={handleUpdateProfile}
+            >
+              <Text style={styles.saveButtonText}>Save Changes</Text>
+            </Pressable>
           </View>
         </View>
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Full Name</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your name"
-            value={name}
-            onChangeText={setName}
-            placeholderTextColor="#666"
-          />
-          
-          <Text style={styles.inputLabel}>Course</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your course"
-            value={course}
-            onChangeText={setCourse}
-            placeholderTextColor="#666"
-          />
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.optionsContainer}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.option,
+                pressed && styles.optionPressed,
+              ]}
+              onPress={() => navigation.navigate("Help")}
+            >
+              <View style={styles.optionIcon}>
+                <Ionicons name="help-circle" size={24} color="#192841" />
+              </View>
+              <View style={styles.optionContent}>
+                <Text style={styles.optionTitle}>Help & Support</Text>
+                <Text style={styles.optionDescription}>
+                  Get assistance and answers to your questions
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#192841" />
+            </Pressable>
 
-          <Pressable 
-            style={({pressed}) => [styles.saveButton, pressed && styles.buttonPressed]}
-            onPress={handleUpdateProfile}
-          >
-            <Text style={styles.saveButtonText}>Save Changes</Text>
-          </Pressable>
+            <Pressable
+              style={({ pressed }) => [
+                styles.option,
+                pressed && styles.optionPressed,
+              ]}
+              onPress={handleLogout}
+            >
+              <View style={styles.optionIcon}>
+                <Ionicons name="log-out" size={24} color="#dc2626" />
+              </View>
+              <View style={styles.optionContent}>
+                <Text style={[styles.optionTitle, styles.logoutText]}>
+                  Logout
+                </Text>
+                <Text style={styles.optionDescription}>
+                  Sign out from your account
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={24} color="#dc2626" />
+            </Pressable>
+          </View>
         </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.sectionTitle}>Quick Actions</Text>
-        <View style={styles.optionsContainer}>
-          <Pressable 
-            style={({pressed}) => [styles.option, pressed && styles.optionPressed]}
-            onPress={() => navigation.navigate("Help")}
-          >
-            <View style={styles.optionIcon}>
-              <Ionicons name="help-circle" size={24} color="#192841" />
-            </View>
-            <View style={styles.optionContent}>
-              <Text style={styles.optionTitle}>Help & Support</Text>
-              <Text style={styles.optionDescription}>Get assistance and answers to your questions</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#192841" />
-          </Pressable>
-
-          <Pressable 
-            style={({pressed}) => [styles.option, pressed && styles.optionPressed]}
-            onPress={handleLogout}
-          >
-            <View style={styles.optionIcon}>
-              <Ionicons name="log-out" size={24} color="#dc2626" />
-            </View>
-            <View style={styles.optionContent}>
-              <Text style={[styles.optionTitle, styles.logoutText]}>Logout</Text>
-              <Text style={styles.optionDescription}>Sign out from your account</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={24} color="#dc2626" />
-          </Pressable>
-        </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   container: {
     flex: 1,
     backgroundColor: "#f8fafc",

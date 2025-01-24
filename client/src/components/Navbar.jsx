@@ -1,77 +1,82 @@
-import React, { useState, useEffect } from "react";
-import { Pressable, StyleSheet, Text, View, Platform } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import React, { useState, useEffect, useRef } from "react";
+import { 
+  Pressable, 
+  StyleSheet, 
+  Text, 
+  View, 
+  Platform, 
+  Animated 
+} from "react-native";
+import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
-import { getAuth, signOut } from "firebase/auth";
 import LeftSidebar from "./LeftSideBar";
 
 const Navbar = () => {
   const navigation = useNavigation();
-  const auth = getAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  
+  // Animated value for pulsing effect
+  const pulseAnim = useRef(new Animated.Value(1)).current;
 
+  // Animation setup for pulsing AI icon
   useEffect(() => {
-    const currentUser = auth.currentUser;
-    if (currentUser) {
-      setUser({
-        name: currentUser.displayName || "User",
-        email: currentUser.email,
-      });
-    }
-  }, []);
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.2,
+          duration: 800,
+          useNativeDriver: true
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true
+        })
+      ])
+    );
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      console.log("User logged out successfully!");
-      // navigation.replace("Auth"); // Remove this line
-    } catch (error) {
-      console.error("Error logging out:", error.message);
-    }
-  };
-
-  const renderCourse = ({ item }) => (
-    <Pressable
-      style={styles.courseContainer}
-      onPress={() => navigation.navigate(item.link)}
-    >
-      <View style={styles.courseIconContainer}>
-        <Ionicons name={item.icon} size={40} color="#fff" />
-      </View>
-      <Text style={styles.courseName}>{item.name}</Text>
-    </Pressable>
-  );
+    pulse.start();
+    return () => pulse.stop();
+  }, [pulseAnim]);
 
   return (
     <>
       <View style={styles.header}>
+        {/* Sidebar Toggle */}
         <Pressable
           style={styles.menuButton}
           onPress={() => setIsSidebarOpen(!isSidebarOpen)}
         >
-          <Ionicons name="menu-outline" size={30} color="#fff" />
+          <MaterialCommunityIcons name="menu" size={30} color="#fff" />
         </Pressable>
-        <View style={styles.topButtons}>
-          <Pressable
-            style={styles.iconButton}
-            onPress={() => navigation.navigate("Courses")}
-          >
-            <Ionicons name="book-outline" size={24} color="white" />
-            <Text style={styles.iconButtonText}>Courses</Text>
-          </Pressable>
 
-          <Pressable style={styles.iconButton} onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={24} color="white" />
-            <Text style={styles.iconButtonText}>Logout</Text>
-          </Pressable>
-        </View>
+        {/* App Name */}
+        <Text style={styles.appName}>MyApp</Text>
+
+        {/* Animated AI Brain Icon */}
+        <Pressable
+          style={styles.iconButton}
+          onPress={() => navigation.navigate("AIStudentHelper")}
+        >
+          <Animated.View style={{
+            transform: [{ 
+              scale: pulseAnim 
+            }]
+          }}>
+            <MaterialCommunityIcons 
+              name="brain" 
+              size={28} 
+              color="#00ffff" // Cyberpunk-style cyan
+            />
+          </Animated.View>
+        </Pressable>
       </View>
+
+      {/* Sidebar */}
       {isSidebarOpen && (
         <LeftSidebar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
-          user={user}
           navigation={navigation}
         />
       )}
@@ -107,24 +112,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "rgba(255,255,255,0.1)",
   },
-  topButtons: {
-    flexDirection: "row",
-    gap: 12,
+  appName: {
+    color: "#fff",
+    fontSize: 20,
+    fontWeight: "600",
   },
   iconButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    padding: 8,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  iconButtonText: {
-    color: "white",
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: "500",
+    backgroundColor: "rgba(255,255,255,0.1)",
   },
 });

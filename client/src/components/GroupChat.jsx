@@ -282,7 +282,7 @@ const GroupChat = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#192841",
+    backgroundColor: "#fff",
   },
   container: {
     flex: 1,

@@ -1,335 +1,382 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  SafeAreaView,
-  Dimensions,
-  StatusBar,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import React from 'react';
+import { View, Text, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get('window');
 
-const careerRoadmaps = {
-  "Data Scientist": [
-    {
-      stage: "Foundations",
-      skills: ["Statistics", "Mathematics", "Probability"],
-      color: "#3498db",
-    },
-    { stage: "Programming", skills: ["Python", "R", "SQL"], color: "#2ecc71" },
-    {
-      stage: "Machine Learning",
-      skills: ["TensorFlow", "PyTorch", "Scikit-learn"],
-      color: "#9b59b6",
-    },
-    {
-      stage: "Advanced Analytics",
-      skills: ["Deep Learning", "NLP", "Big Data"],
-      color: "#34495e",
-    },
-  ],
-  "Data Analyst": [
-    {
-      stage: "Foundations",
-      skills: ["Excel", "Statistics", "Business Logic"],
-      color: "#e74c3c",
-    },
-    {
-      stage: "Data Tools",
-      skills: ["Tableau", "Power BI", "SQL"],
-      color: "#f39c12",
-    },
-    {
-      stage: "Programming",
-      skills: ["Python", "R", "Data Cleaning"],
-      color: "#16a085",
-    },
-    {
-      stage: "Advanced Analytics",
-      skills: ["Predictive Modeling", "A/B Testing", "Dashboards"],
-      color: "#2980b9",
-    },
-  ],
-  "Software Engineer": [
-    {
-      stage: "Programming Basics",
-      skills: ["HTML", "CSS", "JavaScript"],
-      color: "#8e44ad",
-    },
-    {
-      stage: "Frontend",
-      skills: ["React", "Vue", "Angular"],
-      color: "#e67e22",
-    },
-    {
-      stage: "Backend",
-      skills: ["Node.js", "Python", "Java"],
-      color: "#27ae60",
-    },
-    {
-      stage: "Full Stack",
-      skills: ["Microservices", "Docker", "Cloud"],
-      color: "#2c3e50",
-    },
-  ],
-  "Cloud Architect": [
-    {
-      stage: "Cloud Fundamentals",
-      skills: ["Network Basics", "Linux", "Virtualization"],
-      color: "#d35400",
-    },
-    {
-      stage: "Cloud Platforms",
-      skills: ["AWS", "Azure", "GCP"],
-      color: "#1abc9c",
-    },
-    {
-      stage: "Advanced Architecture",
-      skills: ["Kubernetes", "Terraform", "Security"],
-      color: "#34495e",
-    },
-    {
-      stage: "Cloud Strategy",
-      skills: ["Cost Optimization", "Governance", "Migration"],
-      color: "#16a085",
-    },
-  ],
-  "Cybersecurity Specialist": [
-    {
-      stage: "Security Foundations",
-      skills: ["Networking", "OS Security", "Ethics"],
-      color: "#c0392b",
-    },
-    {
-      stage: "Ethical Hacking",
-      skills: ["Penetration Testing", "Cryptography", "Network Security"],
-      color: "#e74c3c",
-    },
-    {
-      stage: "Advanced Security",
-      skills: ["Threat Analysis", "Incident Response", "Forensics"],
-      color: "#2980b9",
-    },
-    {
-      stage: "Specializations",
-      skills: ["Cloud Security", "IoT Security", "Compliance"],
-      color: "#8e44ad",
-    },
-  ],
-  "Product Manager": [
-    {
-      stage: "Product Basics",
-      skills: ["Design Thinking", "User Research", "Agile"],
-      color: "#f1c40f",
-    },
-    {
-      stage: "Product Strategy",
-      skills: ["Market Analysis", "Business Models", "KPIs"],
-      color: "#e67e22",
-    },
-    {
-      stage: "Technical Skills",
-      skills: ["Data Analysis", "Basic Coding", "UX Principles"],
-      color: "#2ecc71",
-    },
-    {
-      stage: "Leadership",
-      skills: ["Team Management", "Communication", "Stakeholder Management"],
-      color: "#3498db",
-    },
-  ],
-};
+const careerFields = [
+  {
+    category: 'Software Engineering',
+    description: 'Architect scalable systems and innovative software solutions',
+    skills: [
+      'Full-stack Development: Developing both front-end and back-end portions of an application.',
+      'Microservices Architecture: Designing applications as a collection of loosely coupled services.',
+      'Performance Optimization: Enhancing the speed and efficiency of applications.',
+      'Test-Driven Development: Writing tests before writing the minimal production code.'
+    ],
+    technologies: [
+      'React: A JavaScript library for building user interfaces.',
+      'Node.js: A JavaScript runtime built on Chrome\'s V8 JavaScript engine.',
+      'Docker: A platform for developing, shipping, and running applications in containers.',
+      'Kubernetes: An open-source system for automating deployment, scaling, and operations of application containers.'
+    ]
+  },
+  {
+    category: 'Cybersecurity',
+    description: 'Defend digital ecosystems against advanced persistent threats',
+    skills: [
+      'Penetration Testing: Simulating cyber attacks to test the security of a system.',
+      'Incident Response: Preparing for and reacting to security breaches.',
+      'Cryptography: Securing information through encryption techniques.',
+      'Threat Hunting: Proactively searching for cyber threats that may have bypassed security measures.'
+    ],
+    technologies: [
+      'Splunk: A platform for searching, monitoring, and analyzing machine-generated data.',
+      'Wireshark: A network protocol analyzer for capturing and interactively browsing the traffic running on a computer network.',
+      'SIEM Tools: Software products and services that provide real-time analysis of security alerts.',
+      'Metasploit: A penetration testing framework that makes hacking simple.'
+    ]
+  },
+  {
+    category: 'Cloud Computing',
+    description: 'Design resilient, scalable cloud infrastructure and migration strategies',
+    skills: [
+      'Cloud Migration: Moving applications and data from on-premises to the cloud.',
+      'Hybrid Cloud Design: Combining on-premises infrastructure with cloud services.',
+      'Cost Optimization: Reducing cloud costs through efficient resource management.',
+      'Cloud-Native Development: Building applications specifically for cloud environments.'
+    ],
+    technologies: [
+      'AWS: A comprehensive cloud platform offered by Amazon.',
+      'Azure: Microsoft\'s cloud computing service for building, testing, deploying, and managing applications.',
+      'GCP: Google Cloud Platform, a suite of cloud computing services.',
+      'Terraform: An open-source infrastructure as code software tool.'
+    ]
+  },
+  {
+    category: 'Data Science',
+    description: 'Transform complex data into actionable strategic insights',
+    skills: [
+      'Predictive Modeling: Using statistical techniques to predict future behavior.',
+      'Deep Learning: A subset of machine learning using neural networks with many layers.',
+      'Data Engineering: Designing, building, and maintaining the architecture for large-scale data processing.',
+      'AI Ethics: Ensuring that AI systems are fair, accountable, and transparent.'
+    ],
+    technologies: [
+      'Python: A programming language widely used in data science.',
+      'TensorFlow: An open-source library for numerical computation and machine learning.',
+      'Pandas: A software library for data manipulation and analysis.',
+      'Jupyter: An open-source web application that allows you to create and share documents that contain live code.'
+    ]
+  },
+  {
+    category: 'DevOps',
+    description: 'Streamline software delivery and operational excellence',
+    skills: [
+      'Advanced Automation: Automating repetitive tasks to improve efficiency.',
+      'Cloud-Native Tools: Tools designed specifically for cloud environments.',
+      'Site Reliability Engineering: Applying engineering principles to operations problems.',
+      'Performance Engineering: Ensuring that applications perform well under expected load conditions.'
+    ],
+    technologies: [
+      'Jenkins: An open-source automation server for building, deploying, and automating any project.',
+      'Ansible: An open-source automation tool for configuring and managing computers.',
+      'Prometheus: An open-source monitoring and alerting toolkit.',
+      'ELK Stack: A collection of open-source products for searching, analyzing, and visualizing log data in real time.'
+    ]
+  },
+  {
+    category: 'AI & Machine Learning',
+    description: 'Pioneer intelligent systems and cutting-edge algorithmic solutions',
+    skills: [
+      'Advanced Neural Networks: Developing complex neural networks for various applications.',
+      'Generative AI: Creating models that can generate new, synthetic but realistic data.',
+      'Reinforcement Learning: Training models to make a sequence of decisions.',
+      'Ethical AI Development: Ensuring AI systems are developed responsibly and ethically.'
+    ],
+    technologies: [
+      'PyTorch: An open-source machine learning library based on the Torch library.',
+      'OpenAI: A company focused on developing friendly AI in a way that benefits humanity.',
+      'Hugging Face: A technology company based in New York and Paris, developing AI technologies.',
+      'GPT Models: Generative Pre-trained Transformer models for natural language processing.'
+    ]
+  }
+];
 
-const RoadmapComponent = () => {
-  const [selectedCareer, setSelectedCareer] = useState("Data Scientist");
-
+const Roadmap = () => {
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#4c669f" barStyle="light-content" />
-      <View style={styles.headerBackground}>
-        <Text style={styles.title}>Career Pathways</Text>
-      </View>
-
+    <SafeAreaView style={styles.safeArea}>
       <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.careerSelector}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
       >
-        {Object.keys(careerRoadmaps).map((career) => (
-          <TouchableOpacity
-            key={career}
-            style={[
-              styles.careerButton,
-              selectedCareer === career && styles.selectedCareerButton,
-            ]}
-            onPress={() => setSelectedCareer(career)}
-          >
-            <Text
-              style={[
-                styles.careerButtonText,
-                selectedCareer === career && styles.selectedCareerButtonText,
-              ]}
-            >
-              {career}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>Roadmaps</Text>
+          <Text style={styles.subtitle}>Choose Your Career Path</Text>
+        </View>
 
-      <View style={styles.roadmapContainer}>
-        <Text style={styles.roadmapTitle}>{selectedCareer} Journey</Text>
-        <ScrollView
-          style={styles.timelineContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {careerRoadmaps[selectedCareer].map((stage, index) => (
-            <View key={index} style={styles.timelineItem}>
-              <View
-                style={styles.timelineConnector(
-                  index,
-                  careerRoadmaps[selectedCareer].length
-                )}
-              />
-              <View
-                style={[styles.stageCircle, { backgroundColor: stage.color }]}
-              >
-                <Text style={styles.stageNumber}>{index + 1}</Text>
+        <View style={styles.timelineContainer}>
+          {careerFields.map((field, index) => (
+            <View key={field.category} style={styles.timelineItem}>
+              <View style={styles.timelineMarker}>
+                <View style={[styles.timelineDot, { 
+                  backgroundColor: getColorForIndex(index) 
+                }]} />
               </View>
-              <View style={styles.stageContent}>
-                <Text style={styles.stageTitle}>{stage.stage}</Text>
-                {stage.skills.map((skill, skillIndex) => (
-                  <Text key={skillIndex} style={styles.skillItem}>
-                    • {skill}
-                  </Text>
-                ))}
+              <View style={styles.cardContainer}>
+                <View style={[styles.timelineContent, { 
+                  borderLeftColor: getColorForIndex(index) 
+                }]}>
+                  <Text style={styles.categoryTitle}>{field.category}</Text>
+                  <Text style={styles.categoryDescription}>{field.description}</Text>
+
+                  <View style={styles.sectionSeparator} />
+
+                  <View style={styles.skillsSection}>
+                    <Text style={styles.sectionTitle}>Key Skills</Text>
+                    {field.skills.map((skill) => (
+                      <View key={skill} style={styles.skillRow}>
+                        <Text style={styles.skillDot}>•</Text>
+                        <Text style={styles.skillText}>{skill}</Text>
+                      </View>
+                    ))}
+                  </View>
+
+                  <View style={styles.sectionSeparator} />
+
+                  <View style={styles.technologiesSection}>
+                    <Text style={styles.sectionTitle}>Core Technologies</Text>
+                    <View style={styles.technologiesGrid}>
+                      {field.technologies.map((tech) => (
+                        <View key={tech} style={styles.techBadge}>
+                          <Text style={styles.techBadgeText}>{tech.split(':')[0]}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  </View>
+                </View>
               </View>
             </View>
           ))}
-        </ScrollView>
-      </View>
+        </View>
+
+        <View style={styles.roadmapContainer}>
+          <Text style={styles.roadmapTitle}>Career Evolution</Text>
+          {[
+            { stage: 'Foundations', description: 'Build core competencies and technical fundamentals' },
+            { stage: 'Specialization', description: 'Deep dive into chosen technological domain' },
+            { stage: 'Professional Growth', description: 'Develop advanced skills and industry recognition' },
+            { stage: 'Leadership', description: 'Drive innovation and strategic technological initiatives' }
+          ].map((path, index) => (
+            <View key={path.stage} style={styles.evolutionStage}>
+              <View style={[styles.stageNumberContainer, { 
+                backgroundColor: getColorForIndex(index) 
+              }]}>
+                <Text style={styles.stageNumber}>{index + 1}</Text>
+              </View>
+              <View style={styles.stageDetails}>
+                <Text style={styles.stageTitle}>{path.stage}</Text>
+                <Text style={styles.stageDescription}>{path.description}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
+// Helper function to generate dynamic colors
+const getColorForIndex = (index) => {
+  const colors = [
+    '#3498db',  // Bright Blue
+    '#2ecc71',  // Emerald Green
+    '#e74c3c',  // Vibrant Red
+    '#f39c12',  // Bright Orange
+    '#9b59b6',  // Purple
+    '#1abc9c'   // Turquoise
+  ];
+  return colors[index % colors.length];
+};
+
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: "#f0f4f8",
+    backgroundColor: '#111b2c',
   },
-  headerBackground: {
-    backgroundColor: "#4c669f",
-    paddingVertical: 15,
-    alignItems: "center",
-    justifyContent: "center",
+  container: {
+    flexGrow: 1,
+    paddingVertical: 30,
+    paddingHorizontal: 20,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    marginBottom: 40,
+    backgroundColor: '#080d15',
+    paddingVertical: 20,
+    borderRadius: 15,
   },
   title: {
-    fontSize: 26,
-    fontWeight: "800",
-    color: "white",
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#A0A0A0',
     letterSpacing: 1,
   },
-  careerSelector: {
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    height: 0,
-  },
-  careerButton: {
-    backgroundColor: "#e7e7e7",
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 20,
-    marginHorizontal: 5,
-    width: width * 0.4,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 5,
-    height: 50,
-  },
-  selectedCareerButton: {
-    backgroundColor: "#3498db",
-  },
-  careerButtonText: {
-    fontWeight: "bold",
-    color: "#2c3e50",
-    fontSize: 14,
-  },
-  selectedCareerButtonText: {
-    color: "white",
-  },
-  roadmapContainer: {
-    flex: 1,
-    backgroundColor: "white",
-    borderTopLeftRadius: 30,
-    borderTopRightRadius: 30,
-    padding: 20,
-    marginTop: 10,
-  },
-  roadmapTitle: {
-    fontSize: 22,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-    color: "#2c3e50",
-  },
   timelineContainer: {
-    paddingHorizontal: 10,
+    marginBottom: 30,
+    borderLeftWidth: 2,
+    borderLeftColor: '#2C2C2C',
+    paddingLeft: 20,
   },
   timelineItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 15,
-    position: "relative",
+    flexDirection: 'row',
+    marginBottom: 30,
+    position: 'relative',
   },
-  timelineConnector: (index, total) => ({
-    position: "absolute",
-    left: 25,
-    top: index === 0 ? 30 : 0,
-    bottom: index === total - 1 ? 30 : 0,
-    width: 2,
-    backgroundColor: "#e0e0e0",
-  }),
-  stageCircle: {
-    width: 45,
-    height: 45,
-    borderRadius: 22.5,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+  timelineMarker: {
+    width: 30,
+    alignItems: 'center',
+    position: 'absolute',
+    top: 20,
+    left: -35,
+  },
+  timelineDot: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 3,
+    borderColor: '#121212',
+  },
+  cardContainer: {
+    flex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  timelineContent: {
+    backgroundColor: '#080d15',
+    borderRadius: 15,
+    padding: 20,
+    borderLeftWidth: 5,
+  },
+  categoryTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 10,
+  },
+  categoryDescription: {
+    color: '#B0B0B0',
+    marginBottom: 15,
+    fontSize: 16,
+    lineHeight: 24,
+    fontStyle: 'italic',
+  },
+  sectionSeparator: {
+    height: 1,
+    backgroundColor: '#2C2C2C',
+    marginVertical: 15,
+  },
+  sectionTitle: {
+    color: '#FFFFFF',
+    fontSize: 20,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  skillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  skillDot: {
+    color: '#FFFFFF',
+    marginRight: 10,
+    fontSize: 18,
+  },
+  skillText: {
+    color: '#B0B0B0',
+    fontSize: 16,
+    flex: 1,
+  },
+  technologiesGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 10,
+  },
+  techBadge: {
+    backgroundColor: '#2C2C2C',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    margin: 5,
+  },
+  techBadgeText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  roadmapContainer: {
+    backgroundColor: '#080d15',
+    borderRadius: 15,
+    padding: 25,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  roadmapTitle: {
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    textAlign: 'center',
+    marginBottom: 30,
+    textTransform: 'uppercase',
+  },
+  evolutionStage: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  stageNumberContainer: {
+    width: 70,
+    height: 70,
+    borderRadius: 35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
     elevation: 5,
   },
-  stageContent: {
-    flex: 1,
-    backgroundColor: "#f9f9f9",
-    padding: 12,
-    borderRadius: 15,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+  stageNumber: {
+    color: '#FFFFFF',
+    fontSize: 32,
+    fontWeight: 'bold',
   },
   stageTitle: {
-    fontSize: 16,
-    fontWeight: "bold",
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
     marginBottom: 8,
-    color: "#2c3e50",
+    width: 200, 
+
   },
-  skillItem: {
-    marginBottom: 4,
-    color: "#34495e",
-    fontSize: 13,
+  stageDescription: {
+    color: '#B0B0B0',
+    fontSize: 16,
+    lineHeight: 22,
+    width: 200, 
   },
 });
 
-export default RoadmapComponent;
+export default Roadmap;

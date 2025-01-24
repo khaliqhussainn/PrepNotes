@@ -107,7 +107,7 @@ const AIStudentHelper = () => {
     <View
       style={[
         styles.message,
-        item.sender === "user" ? styles.userMessage : styles.geminiMessage,
+        item.sender === "user" ? styles.userMessage : styles.assistantMessage,
       ]}
     >
       <Text
@@ -115,7 +115,7 @@ const AIStudentHelper = () => {
           styles.messageText,
           item.sender === "user"
             ? styles.userMessageText
-            : styles.geminiMessageText,
+            : styles.assistantMessageText,
         ]}
       >
         {item.text}
@@ -124,161 +124,166 @@ const AIStudentHelper = () => {
   );
 
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <StatusBar barStyle="light-content" backgroundColor="#fff" />
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.header}>
-            <Text style={styles.headerText}>Docs AI</Text>
-          </View>
+    <View style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#F4F4F4" />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <Text style={styles.headerText}>Student AI Assistant</Text>
+        </View>
 
-          {messages.length === 0 && (
-            <Animated.View
-              style={[styles.welcomeContainer, { opacity: fadeAnim }]}
-            >
-              <Text style={styles.welcomeText}>Ask Your Query</Text>
-              <Text style={styles.subWelcomeText}>
-                Your AI Student Assistant
-              </Text>
-            </Animated.View>
-          )}
-
-          <KeyboardAvoidingView
-            style={styles.keyboardContainer}
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
+        {messages.length === 0 && (
+          <Animated.View
+            style={[styles.welcomeContainer, { opacity: fadeAnim }]}
           >
-            <FlatList
-              data={messages}
-              renderItem={renderItem}
-              keyExtractor={(item, index) => index.toString()}
-              contentContainerStyle={styles.messagesContainer}
-              inverted
-              showsVerticalScrollIndicator={false}
-            />
+            <Text style={styles.welcomeText}>Welcome</Text>
+            <Text style={styles.subWelcomeText}>How can I help you today?</Text>
+          </Animated.View>
+        )}
 
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Ask me anything..."
-                placeholderTextColor="rgba(255,255,255,0.5)"
-                value={msg}
-                onChangeText={setMsg}
-                multiline
-                numberOfLines={3}
-              />
-              <TouchableOpacity
-                style={styles.sendButton}
-                onPress={handleButtonClick}
-                disabled={loading}
-              >
-                {loading ? (
-                  <ActivityIndicator size="small" color="#fff" />
-                ) : (
-                  <Text style={styles.sendButtonText}>Send</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </KeyboardAvoidingView>
-        </SafeAreaView>
-      </View>
-    </SafeAreaView>
+        <KeyboardAvoidingView
+          style={styles.keyboardContainer}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+        >
+          <FlatList
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={styles.messagesContainer}
+            inverted
+            showsVerticalScrollIndicator={false}
+          />
+
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              placeholder="How can I help you?"
+              placeholderTextColor="#A0A0A0"
+              value={msg}
+              onChangeText={setMsg}
+              multiline
+              numberOfLines={3}
+            />
+            <TouchableOpacity
+              style={styles.sendButton}
+              onPress={handleButtonClick}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.sendButtonText}>Send</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: "#192841", // Deepened base background color
-    },
-    safeArea: {
-      flex: 1,
-      width: width,
-      height: height,
-    },
-    header: {
-      paddingVertical: 15,
-      alignItems: "center",
-      backgroundColor: "rgba(25, 40, 65, 0.7)", // Slightly darker header
-    },
-    headerText: {
-      color: "#4ECDC4", // Accent color for text
-      fontSize: 24,
-      fontWeight: "bold",
-    },
-    welcomeContainer: {
-      alignItems: "center",
-      justifyContent: "center",
-      paddingVertical: 20,
-    },
-    welcomeText: {
-      fontSize: 30,
-      fontWeight: "bold",
-      color: "#4ECDC4", // Consistent accent color
-      marginBottom: 10,
-    },
-    subWelcomeText: {
-      fontSize: 18,
-      color: "rgba(78, 205, 196, 0.7)", // Lighter version of accent color
-    },
-    keyboardContainer: {
-      flex: 1,
-      justifyContent: "flex-end",
-    },
-    messagesContainer: {
-      paddingHorizontal: 15,
-      paddingBottom: 20,
-    },
-    message: {
-      maxWidth: "80%",
-      padding: 15,
-      borderRadius: 20,
-      marginBottom: 12,
-      shadowColor: "#000",
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.25,
-      shadowRadius: 3.84,
-      elevation: 5,
-    },
-    userMessage: {
-      alignSelf: "flex-end",
-      backgroundColor: "rgba(25, 40, 65, 0.9)", // Dark blue for user messages
-    },
-    geminiMessage: {
-      alignSelf: "flex-start",
-      backgroundColor: "rgba(78, 205, 196, 0.8)", // Accent color for AI messages
-    },
-    messageText: {
-      fontSize: 16,
-      color: "white",
-    },
-    inputContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      padding: 15,
-      backgroundColor: "rgba(25, 40, 65, 0.3)", // Consistent dark background
-    },
-    input: {
-      flex: 1,
-      maxHeight: 100,
-      backgroundColor: "rgba(78, 205, 196, 0.2)", // Accent color with transparency
-      color: "white",
-      borderRadius: 25,
-      paddingHorizontal: 20,
-      paddingVertical: 10,
-      marginRight: 10,
-      fontSize: 16,
-    },
-    sendButton: {
-      backgroundColor: "rgba(78, 205, 196, 0.8)", // Accent color for send button
-      borderRadius: 25,
-      padding: 12,
-      width: 70,
-      alignItems: "center",
-    },
-    sendButtonText: {
-      color: "#192841", // Dark text on accent background
-      fontWeight: "bold",
-    },
-  });
+  container: {
+    flex: 1,
+    backgroundColor: "#F4F4F4",
+  },
+  safeArea: {
+    flex: 1,
+  },
+  header: {
+    paddingVertical: 15,
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    borderBottomWidth: 1,
+    borderBottomColor: "#E0E0E0",
+  },
+  headerText: {
+    color: "#1A1A2C",
+    fontSize: 20,
+    fontWeight: "600",
+  },
+  welcomeContainer: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 30,
+  },
+  welcomeText: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: "#1A1A2C",
+    marginBottom: 10,
+  },
+  subWelcomeText: {
+    fontSize: 16,
+    color: "#6B7280",
+  },
+  keyboardContainer: {
+    flex: 1,
+    justifyContent: "flex-end",
+  },
+  messagesContainer: {
+    paddingHorizontal: 15,
+    paddingBottom: 20,
+  },
+  message: {
+    maxWidth: "85%",
+    padding: 12,
+    borderRadius: 15,
+    marginBottom: 10,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  userMessage: {
+    alignSelf: "flex-end",
+    backgroundColor: "#1A1A2C",
+  },
+  assistantMessage: {
+    alignSelf: "flex-start",
+    backgroundColor: "#FFFFFF",
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  messageText: {
+    fontSize: 15,
+  },
+  userMessageText: {
+    color: "#FFFFFF",
+  },
+  assistantMessageText: {
+    color: "#1A1A2C",
+  },
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 10,
+    backgroundColor: "#F4F4F4",
+  },
+  input: {
+    flex: 1,
+    maxHeight: 100,
+    backgroundColor: "#FFFFFF",
+    color: "#1A1A2C",
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginRight: 10,
+    fontSize: 15,
+    borderWidth: 1,
+    borderColor: "#E0E0E0",
+  },
+  sendButton: {
+    backgroundColor: "#1A1A2C",
+    borderRadius: 20,
+    padding: 12,
+    width: 70,
+    alignItems: "center",
+  },
+  sendButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "600",
+  },
+});
 
 export default AIStudentHelper;

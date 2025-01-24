@@ -1,6 +1,14 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable, Linking, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  Linking,
+  ScrollView,
+} from "react-native";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Help = () => {
   const handleContactPress = () => {
@@ -10,97 +18,114 @@ const Help = () => {
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Help & Support</Text>
-        <Text style={styles.subtitle}>Get assistance and learn how to use the app</Text>
-      </View>
-
-      <View style={styles.content}>
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="book-outline" size={24} color="#192841" />
-            </View>
-            <Text style={styles.sectionTitle}>How to Use the App</Text>
-          </View>
-          <Text style={styles.description}>
-            Welcome to our app! Here are some tips to get you started:
+    <SafeAreaView style={styles.container}>
+      <ScrollView  showsVerticalScrollIndicator={false}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Help & Support</Text>
+          <Text style={styles.subtitle}>
+            Get assistance and learn how to use the app
           </Text>
-          <View style={styles.stepContainer}>
-            <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>1</Text>
-              </View>
-              <Text style={styles.stepText}>
-                Navigate through the Courses section to access free notes and previous year question papers.
-              </Text>
-            </View>
-            <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>2</Text>
-              </View>
-              <Text style={styles.stepText}>
-                Use the settings to customize your experience.
-              </Text>
-            </View>
-            <View style={styles.step}>
-              <View style={styles.stepNumber}>
-                <Text style={styles.stepNumberText}>3</Text>
-              </View>
-              <Text style={styles.stepText}>
-                If you need help, visit this help section.
-              </Text>
-            </View>
-          </View>
         </View>
 
-        <View style={styles.card}>
-          <View style={styles.cardHeader}>
-            <View style={styles.iconContainer}>
-              <Ionicons name="help-circle-outline" size={24} color="#192841" />
+        <View style={styles.content}>
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconContainer}>
+                <Ionicons name="book-outline" size={24} color="#192841" />
+              </View>
+              <Text style={styles.sectionTitle}>How to Use the App</Text>
             </View>
-            <Text style={styles.sectionTitle}>Frequently Asked Questions</Text>
+            <Text style={styles.description}>
+              Welcome to our app! Here are some tips to get you started:
+            </Text>
+            <View style={styles.stepContainer}>
+              <View style={styles.step}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>1</Text>
+                </View>
+                <Text style={styles.stepText}>
+                  Navigate through the Courses section to access free notes and
+                  previous year question papers.
+                </Text>
+              </View>
+              <View style={styles.step}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>2</Text>
+                </View>
+                <Text style={styles.stepText}>
+                  Use the settings to customize your experience.
+                </Text>
+              </View>
+              <View style={styles.step}>
+                <View style={styles.stepNumber}>
+                  <Text style={styles.stepNumberText}>3</Text>
+                </View>
+                <Text style={styles.stepText}>
+                  If you need help, visit this help section.
+                </Text>
+              </View>
+            </View>
           </View>
-          
-          <View style={styles.faqItem}>
-            <Text style={styles.faqQuestion}>
-              How do I change my profile picture?
-            </Text>
-            <Text style={styles.faqAnswer}>
-              Go to Profile Settings in the Settings menu and tap on your profile image to update it.
-            </Text>
-          </View>
-          <View style={styles.faqItem}>
-            <Text style={styles.faqQuestion}>
-              How can I access course materials?
-            </Text>
-            <Text style={styles.faqAnswer}>
-              Navigate to the Courses tab and select your desired course to view available materials.
-            </Text>
-          </View>
-        </View>
 
-        <Pressable 
-          style={({pressed}) => [styles.card, styles.contactCard, pressed && styles.cardPressed]}
-          onPress={handleContactPress}
-        >
-          <View style={styles.cardHeader}>
-            <View style={[styles.iconContainer, styles.contactIcon]}>
-              <Ionicons name="mail-outline" size={24} color="#192841" />
+          <View style={styles.card}>
+            <View style={styles.cardHeader}>
+              <View style={styles.iconContainer}>
+                <Ionicons
+                  name="help-circle-outline"
+                  size={24}
+                  color="#192841"
+                />
+              </View>
+              <Text style={styles.sectionTitle}>
+                Frequently Asked Questions
+              </Text>
             </View>
-            <Text style={styles.sectionTitle}>Contact Support</Text>
+
+            <View style={styles.faqItem}>
+              <Text style={styles.faqQuestion}>
+                How do I change my profile picture?
+              </Text>
+              <Text style={styles.faqAnswer}>
+                Go to Profile Settings in the Settings menu and tap on your
+                profile image to update it.
+              </Text>
+            </View>
+            <View style={styles.faqItem}>
+              <Text style={styles.faqQuestion}>
+                How can I access course materials?
+              </Text>
+              <Text style={styles.faqAnswer}>
+                Navigate to the Courses tab and select your desired course to
+                view available materials.
+              </Text>
+            </View>
           </View>
-          <Text style={styles.description}>
-            Need additional help? Feel free to reach out to our support team.
-          </Text>
-          <View style={styles.emailContainer}>
-            <Ionicons name="mail" size={20} color="#192841" />
-            <Text style={styles.emailText}>khaliquehussain7@gmail.com</Text>
-          </View>
-        </Pressable>
-      </View>
-    </ScrollView>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.card,
+              styles.contactCard,
+              pressed && styles.cardPressed,
+            ]}
+            onPress={handleContactPress}
+          >
+            <View style={styles.cardHeader}>
+              <View style={[styles.iconContainer, styles.contactIcon]}>
+                <Ionicons name="mail-outline" size={24} color="#192841" />
+              </View>
+              <Text style={styles.sectionTitle}>Contact Support</Text>
+            </View>
+            <Text style={styles.description}>
+              Need additional help? Feel free to reach out to our support team.
+            </Text>
+            <View style={styles.emailContainer}>
+              <Ionicons name="mail" size={20} color="#192841" />
+              <Text style={styles.emailText}>khaliquehussain7@gmail.com</Text>
+            </View>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
