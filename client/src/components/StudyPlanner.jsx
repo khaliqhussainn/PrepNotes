@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Keyboard,
   TouchableWithoutFeedback,
-  ScrollView
+  ScrollView,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
@@ -30,9 +30,9 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const PRIMARY_COLOR = "#192841";
-const SECONDARY_COLOR = "#2a3f63";
-const ACCENT_COLOR = "#3e5785";
+const PRIMARY_COLOR = "#6b2488";
+const SECONDARY_COLOR = "#151537";
+const ACCENT_COLOR = "#1a2c6b";
 const TEXT_COLOR = "#ffffff";
 const LIGHT_TEXT = "#e1e5ee";
 
@@ -60,7 +60,6 @@ const StudyPlanner = () => {
 
   const handleNotificationResponse = (response) => {
     const planId = response.notification.request.content.data.planId;
-    // Mark plan as completed or handle notification response
     if (planId) {
       markPlanAsCompleted(planId);
     }
@@ -210,7 +209,7 @@ const StudyPlanner = () => {
 
   const renderStudyPlan = ({ item }) => (
     <LinearGradient
-      colors={[SECONDARY_COLOR, PRIMARY_COLOR]}
+      colors={[SECONDARY_COLOR, ACCENT_COLOR]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.planItem}
@@ -246,98 +245,107 @@ const StudyPlanner = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-    <Navbar />
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      keyboardShouldPersistTaps="handled"
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View style={styles.innerContainer}>
-          <LinearGradient
-            colors={[PRIMARY_COLOR, SECONDARY_COLOR]}
-            style={styles.header}
-          >
-            <Text style={styles.title}>Study Planner</Text>
-            {isLoading ? (
-              <ActivityIndicator color={TEXT_COLOR} />
-            ) : (
-              <Text style={styles.quote}>"{motivationQuote}"</Text>
-            )}
-          </LinearGradient>
+      <Navbar />
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.innerContainer}>
+            <LinearGradient
+              colors={[PRIMARY_COLOR, SECONDARY_COLOR, ACCENT_COLOR]}
+              locations={[0, 0.3, 1]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.header}
+            >
+              <Text style={styles.title}>Study Planner</Text>
+              {isLoading ? (
+                <ActivityIndicator color={TEXT_COLOR} />
+              ) : (
+                <Text style={styles.quote}>"{motivationQuote}"</Text>
+              )}
+            </LinearGradient>
 
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Enter your study plan"
-              value={studyPlan}
-              onChangeText={setStudyPlan}
-              placeholderTextColor="#8895aa"
-            />
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your study plan"
+                value={studyPlan}
+                onChangeText={setStudyPlan}
+                placeholderTextColor="#8895aa"
+              />
 
-            <View style={styles.dateTimeContainer}>
-              <TouchableOpacity
-                style={styles.datePickerButton}
-                onPress={() => showMode("date")}
-              >
-                <Text style={styles.datePickerButtonText}>
-                  {selectedDate.toLocaleDateString()}
-                </Text>
-              </TouchableOpacity>
+              <View style={styles.dateTimeContainer}>
+                <TouchableOpacity
+                  style={styles.datePickerButton}
+                  onPress={() => showMode("date")}
+                >
+                  <Text style={styles.datePickerButtonText}>
+                    {selectedDate.toLocaleDateString()}
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.datePickerButton}
-                onPress={() => showMode("time")}
-              >
-                <Text style={styles.datePickerButtonText}>
-                  {selectedDate.toLocaleTimeString()}
-                </Text>
+                <TouchableOpacity
+                  style={styles.datePickerButton}
+                  onPress={() => showMode("time")}
+                >
+                  <Text style={styles.datePickerButtonText}>
+                    {selectedDate.toLocaleTimeString()}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              {showDatePicker && (
+                <View style={styles.datePickerContainer}>
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.closeButtonText}>✕</Text>
+                  </TouchableOpacity>
+                  <DateTimePickerModal
+                    value={selectedDate}
+                    mode={pickerMode}
+                    is24Hour={true}
+                    display="spinner"
+                    onChange={handleDateChange}
+                    style={styles.datePicker}
+                  />
+                </View>
+              )}
+
+              <TouchableOpacity style={styles.addButton} onPress={addStudyPlan}>
+                <Text style={styles.addButtonText}>Add Plan</Text>
               </TouchableOpacity>
             </View>
 
-            {showDatePicker && (
-              <View style={styles.datePickerContainer}>
-                <TouchableOpacity
-                  style={styles.closeButton}
-                  onPress={() => setShowDatePicker(false)}
-                >
-                  <Text style={styles.closeButtonText}>✕</Text>
-                </TouchableOpacity>
-                <DateTimePickerModal
-                  value={selectedDate}
-                  mode={pickerMode}
-                  is24Hour={true}
-                  display="spinner"
-                  onChange={handleDateChange}
-                  style={styles.datePicker}
-                />
-              </View>
-            )}
-
-            <TouchableOpacity style={styles.addButton} onPress={addStudyPlan}>
-              <Text style={styles.addButtonText}>Add Plan</Text>
-            </TouchableOpacity>
+            <FlatList
+              data={studyPlans}
+              renderItem={renderStudyPlan}
+              keyExtractor={(item) => item.id}
+              style={styles.list}
+              contentContainerStyle={styles.listContent}
+              scrollEnabled={false}
+              nestedScrollEnabled={true}
+            />
           </View>
-
-          <FlatList
-            data={studyPlans}
-            renderItem={renderStudyPlan}
-            keyExtractor={(item) => item.id}
-            style={styles.list}
-            contentContainerStyle={styles.listContent}
-            scrollEnabled={false} // Disable FlatList scrolling since we're using ScrollView
-            nestedScrollEnabled={true}
-          />
-        </View>
-      </TouchableWithoutFeedback>
-    </ScrollView>
-  </SafeAreaView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8fafd",
+    backgroundColor: SECONDARY_COLOR,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+  },
+  innerContainer: {
+    flex: 1,
   },
   header: {
     padding: 25,
@@ -401,7 +409,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   datePicker: {
-    backgroundColor: "#192841",
+    backgroundColor: SECONDARY_COLOR,
     borderRadius: 15,
     marginBottom: 15,
   },
@@ -480,6 +488,20 @@ const styles = StyleSheet.create({
     color: TEXT_COLOR,
     fontSize: 24,
     fontWeight: "600",
+  },
+  datePickerContainer: {
+    backgroundColor: SECONDARY_COLOR,
+    borderRadius: 15,
+    padding: 10,
+    marginBottom: 15,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    padding: 5,
+  },
+  closeButtonText: {
+    color: TEXT_COLOR,
+    fontSize: 18,
   },
 });
 

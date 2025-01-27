@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,9 @@ import {
   Image,
   Modal,
   SafeAreaView,
-} from 'react-native';
+  Keyboard,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   getDatabase,
   ref,
@@ -21,9 +23,8 @@ import {
   query,
   orderByChild,
   limitToLast,
-} from '@firebase/database';
-import { getAuth } from '@firebase/auth';
-import Navbar from './Navbar';
+} from "@firebase/database";
+import { getAuth } from "@firebase/auth";
 
 const GroupChat = () => {
   const [message, setMessage] = useState("");
@@ -35,6 +36,12 @@ const GroupChat = () => {
   const auth = getAuth();
   const database = getDatabase();
   const MESSAGES_LIMIT = 50;
+
+  // Gradient configuration
+  const gradientColors = ["#6b2488", "#151537", "#1a2c6b"];
+  const gradientLocations = [0, 0.3, 1];
+  const gradientStart = { x: 0, y: 0 };
+  const gradientEnd = { x: 1, y: 1 };
 
   useEffect(() => {
     const messagesRef = ref(database, "messages");
@@ -146,7 +153,12 @@ const GroupChat = () => {
           ]}
         >
           {!isCurrentUser && <ProfileImage user={item} size={32} />}
-          <View
+          <LinearGradient
+            colors={
+              isCurrentUser ? ["#6b2488", "#1a2c6b"] : ["#151537", "#1a2c6b"]
+            }
+            start={gradientStart}
+            end={gradientEnd}
             style={[
               styles.messageContainer,
               isCurrentUser
@@ -163,7 +175,7 @@ const GroupChat = () => {
             <Text style={styles.timestamp}>
               {formatTimestamp(item.timestamp)}
             </Text>
-          </View>
+          </LinearGradient>
         </View>
       </>
     );
@@ -177,7 +189,13 @@ const GroupChat = () => {
       onRequestClose={() => setShowUsersModal(false)}
     >
       <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
+        <LinearGradient
+          colors={gradientColors}
+          locations={gradientLocations}
+          start={gradientStart}
+          end={gradientEnd}
+          style={styles.modalContent}
+        >
           <Text style={styles.modalTitle}>Active Users ({users.size})</Text>
           <FlatList
             data={Array.from(users)}
@@ -195,7 +213,7 @@ const GroupChat = () => {
           >
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
-        </View>
+        </LinearGradient>
       </View>
     </Modal>
   );
@@ -203,77 +221,91 @@ const GroupChat = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.safeArea}>
-        <Navbar />
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#1e3a8a" />
-        </View>
+        <LinearGradient
+          colors={gradientColors}
+          locations={gradientLocations}
+          start={gradientStart}
+          end={gradientEnd}
+          style={styles.loadingContainer}
+        >
+          <ActivityIndicator size="large" color="#fff" />
+        </LinearGradient>
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Navbar />
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         style={styles.container}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.userButton}
-            onPress={() => setShowUsersModal(true)}
-          >
-            <ProfileImage
-              user={{ userEmail: auth.currentUser.email }}
-              size={32}
-            />
-            <View style={styles.userInfo}>
-              <Text style={styles.currentUserName}>
-                {auth.currentUser.displayName ||
-                  auth.currentUser.email.split("@")[0]}
+        <LinearGradient
+          colors={gradientColors}
+          locations={gradientLocations}
+          start={gradientStart}
+          end={gradientEnd}
+          style={styles.container}
+        >
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.userButton}
+              onPress={() => setShowUsersModal(true)}
+            >
+              <ProfileImage
+                user={{ userEmail: auth.currentUser.email }}
+                size={32}
+              />
+              <View style={styles.userInfo}>
+                <Text style={styles.currentUserName}>
+                  {auth.currentUser.displayName ||
+                    auth.currentUser.email.split("@")[0]}
+                </Text>
+                <View style={styles.onlineIndicator} />
+              </View>
+            </TouchableOpacity>
+          </View>
+
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
+            onLayout={() => flatListRef.current?.scrollToEnd()}
+            ListEmptyComponent={
+              <Text style={styles.emptyText}>
+                No messages yet. Start the conversation!
               </Text>
-              <View style={styles.onlineIndicator} />
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={(item) => item.id}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
-          onLayout={() => flatListRef.current?.scrollToEnd()}
-          ListEmptyComponent={
-            <Text style={styles.emptyText}>
-              No messages yet. Start the conversation!
-            </Text>
-          }
-        />
-
-        <View style={styles.inputContainer}>
-          <TextInput
-            style={styles.input}
-            value={message}
-            onChangeText={setMessage}
-            placeholder="Type your message..."
-            placeholderTextColor="#888"
-            multiline
-            maxLength={500}
+            }
           />
-          <TouchableOpacity
-            style={[
-              styles.sendButton,
-              !message.trim() && styles.sendButtonDisabled,
-            ]}
-            onPress={sendMessage}
-            disabled={!message.trim()}
-          >
-            <Text style={styles.sendButtonText}>Send</Text>
-          </TouchableOpacity>
-        </View>
 
-        <UsersModal />
+          <View style={styles.inputContainer}>
+            <TextInput
+              style={styles.input}
+              value={message}
+              onChangeText={setMessage}
+              placeholder="Type your message..."
+              placeholderTextColor="#888"
+              multiline
+              maxLength={500}
+              onFocus={() => Keyboard.dismiss()}
+            />
+            <TouchableOpacity
+              style={[
+                styles.sendButton,
+                !message.trim() && styles.sendButtonDisabled,
+              ]}
+              onPress={sendMessage}
+              disabled={!message.trim()}
+            >
+              <Text style={styles.sendButtonText}>Send</Text>
+            </TouchableOpacity>
+          </View>
+
+          <UsersModal />
+        </LinearGradient>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -282,22 +314,19 @@ const GroupChat = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   container: {
     flex: 1,
-    backgroundColor: "#192841",
   },
   header: {
     padding: 12,
-    backgroundColor: "#152238",
     borderBottomWidth: 1,
-    borderBottomColor: "#1e3a8a",
+    borderBottomColor: "#6b2488",
   },
   userButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1e3a8a",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     padding: 8,
     borderRadius: 20,
     alignSelf: "flex-start",
@@ -308,7 +337,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   currentUserName: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 14,
     fontWeight: "bold",
     marginRight: 8,
@@ -321,13 +350,13 @@ const styles = StyleSheet.create({
   },
   profileImage: {
     borderRadius: 20,
-    backgroundColor: "#1e3a8a",
+    backgroundColor: "#6b2488",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
   },
   profileInitials: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
@@ -350,25 +379,23 @@ const styles = StyleSheet.create({
     marginHorizontal: 8,
   },
   currentUserMessage: {
-    backgroundColor: "#1e3a8a",
     borderBottomRightRadius: 4,
   },
   otherUserMessage: {
-    backgroundColor: "#152238",
     borderBottomLeftRadius: 4,
   },
   userName: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 12,
     marginBottom: 4,
     fontWeight: "bold",
   },
   messageText: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 16,
   },
   timestamp: {
-    color: "#888",
+    color: "rgba(255, 255, 255, 0.6)",
     fontSize: 10,
     marginTop: 4,
     alignSelf: "flex-end",
@@ -378,39 +405,40 @@ const styles = StyleSheet.create({
     marginVertical: 16,
   },
   dateHeaderText: {
-    color: "#888",
+    color: "rgba(255, 255, 255, 0.6)",
     fontSize: 12,
-    backgroundColor: "#152238",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 12,
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 12,
-    backgroundColor: "#152238",
+    padding: 18,
+    marginBottom: Platform.OS === "ios" ? 60 : 20,
+    // backgroundColor: "#151537",
   },
   input: {
     flex: 1,
-    backgroundColor: "#192841",
-    color: "#F4EBD0",
+    backgroundColor: "#2F2750",
+    color: "#fff",
     borderRadius: 20,
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 12,
     marginRight: 8,
     maxHeight: 100,
   },
   sendButton: {
-    backgroundColor: "#1e3a8a",
+    backgroundColor: "#6b2488",
     borderRadius: 20,
     paddingHorizontal: 16,
     justifyContent: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: "#152238",
+    backgroundColor: "#C900FF",
   },
   sendButtonText: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 16,
   },
   modalContainer: {
@@ -420,14 +448,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalContent: {
-    backgroundColor: "#192841",
     borderRadius: 12,
     padding: 16,
     width: "80%",
     maxHeight: "80%",
   },
   modalTitle: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
@@ -437,29 +464,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#152238",
+    borderBottomColor: "rgba(255, 255, 255, 0.1)",
   },
   modalUserName: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 16,
     marginLeft: 12,
   },
   closeButton: {
-    backgroundColor: "#1e3a8a",
+    backgroundColor: "#6b2488",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 16,
   },
   closeButtonText: {
-    color: "#F4EBD0",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   emptyText: {
-    color: "#888",
+    color: "#543378",
     textAlign: "center",
     marginTop: 20,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 

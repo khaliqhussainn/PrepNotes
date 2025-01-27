@@ -13,18 +13,23 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 const { width } = Dimensions.get("window");
 
-const CourseCard = ({ title, description, onPress, gradient, icon }) => (
+const CourseCard = ({ title, description, onPress, icon }) => (
   <TouchableOpacity onPress={onPress} style={styles.courseCard}>
     <LinearGradient
-      colors={gradient}
+      colors={['rgba(107, 36, 136, 0.9)', 'rgba(26, 44, 107, 0.9)']}
       style={styles.gradient}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
     >
       <View style={styles.cardHeader}>
-        <View style={styles.iconContainer}>
+        <LinearGradient
+          colors={["#e81cff", "#40c9ff"]}
+          style={styles.iconContainer}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <Ionicons name={icon} size={32} color="#FFFFFF" />
-        </View>
+        </LinearGradient>
         <View style={styles.cardBadge}>
           <Text style={styles.badgeText}>Featured</Text>
         </View>
@@ -45,10 +50,14 @@ const CourseCard = ({ title, description, onPress, gradient, icon }) => (
           <Text style={styles.statNumber}>6</Text>
           <Text style={styles.statLabel}>Semesters</Text>
         </View>
-        <TouchableOpacity style={styles.learnMore}>
-          {/* <Text style={styles.learnMoreText}>Learn More</Text> */}
+        <LinearGradient
+          colors={["#e81cff", "#40c9ff"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.learnMore}
+        >
           <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-        </TouchableOpacity>
+        </LinearGradient>
       </View>
     </LinearGradient>
   </TouchableOpacity>
@@ -59,86 +68,96 @@ const MainScreen = ({ navigation }) => {
     {
       title: "BCA",
       description: "Bachelor of Computer Applications",
-      gradient: ["#192841", "#2c3e50"],
       icon: "desktop-outline",
     },
     {
       title: "B.TECH",
       description: "Bachelor of Technology",
-      gradient: ["#192841", "#2c3e50"],
       icon: "construct-outline",
     },
     {
       title: "BSC",
       description: "Bachelor of Science",
-      gradient: ["#192841", "#2c3e50"],
       icon: "flask-outline",
     },
     {
       title: "MCA",
       description: "Master of Computer Applications",
-      gradient: ["#192841", "#2c3e50"],
       icon: "code-slash-outline",
     },
   ];
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => navigation.goBack()}
-          >
-            <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.filterButton}>
-            <Ionicons name="filter" size={24} color="#FFFFFF" />
-          </TouchableOpacity>
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#6b2488', '#151537', '#1a2c6b']}
+        locations={[0, 0.3, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.backgroundGradient}
+      />
+      <SafeAreaView style={styles.safeArea}>
+        <View style={styles.header}>
+          <View style={styles.headerTop}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}
+            >
+              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.filterButton}>
+              <Ionicons name="filter" size={24} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.title}>Explore Courses</Text>
+          <Text style={styles.subtitle}>Find your perfect program</Text>
         </View>
-        <Text style={styles.title}>Explore Courses</Text>
-        <Text style={styles.subtitle}>Find your perfect program</Text>
-      </View>
 
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {courses.map((course, index) => (
-          <CourseCard
-            key={index}
-            title={course.title}
-            description={course.description}
-            gradient={course.gradient}
-            icon={course.icon}
-            onPress={() => navigation.navigate(course.title)}
-          />
-        ))}
-      </ScrollView>
-      
-    </SafeAreaView>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          {courses.map((course, index) => (
+            <CourseCard
+              key={index}
+              title={course.title}
+              description={course.description}
+              icon={course.icon}
+              onPress={() => navigation.navigate(course.title)}
+            />
+          ))}
+        </ScrollView>
+      </SafeAreaView>
+    </View>
   );
 };
-
-export default MainScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f2f5",
+  },
+  backgroundGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+  },
+  safeArea: {
+    flex: 1,
   },
   header: {
     padding: 20,
-    backgroundColor: "#192841",
+    backgroundColor: 'rgba(107, 36, 136, 0.2)',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    shadowColor: "#000",
+    shadowColor: "#e81cff",
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 8,
   },
   headerTop: {
@@ -176,13 +195,13 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     borderRadius: 20,
     overflow: "hidden",
-    shadowColor: "#000",
+    shadowColor: "#e81cff",
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 8,
   },
   gradient: {
@@ -199,7 +218,6 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 25,
-    backgroundColor: "rgba(255,255,255,0.1)",
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 1,
@@ -224,6 +242,9 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#FFFFFF",
     marginBottom: 8,
+    textShadowColor: 'rgba(232, 28, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   courseDescription: {
     fontSize: 16,
@@ -250,6 +271,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     color: "#FFFFFF",
+    textShadowColor: 'rgba(232, 28, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   statLabel: {
     fontSize: 14,
@@ -259,15 +283,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginLeft: "auto",
-    backgroundColor: "rgba(255,255,255,0.1)",
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderRadius: 20,
   },
-  learnMoreText: {
-    color: "#FFFFFF",
-    marginRight: 4,
-    fontSize: 14,
-    fontWeight: "500",
-  },
 });
+
+export default MainScreen;

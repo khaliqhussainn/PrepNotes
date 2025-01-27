@@ -3,11 +3,11 @@ import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-import Profile from "./Profile";
 
-const PRIMARY_COLOR = "#192841";
-const SECONDARY_COLOR = "#2a3f63";
-const ACCENT_COLOR = "#3e5785";
+// Updated color scheme
+const PRIMARY_COLOR = "#e81cff";
+const SECONDARY_COLOR = "#40c9ff";
+const ACCENT_COLOR = "#bf40ff";
 const TEXT_COLOR = "#ffffff";
 const LIGHT_TEXT = "#e1e5ee";
 
@@ -19,10 +19,11 @@ const Settings = () => {
     setNotificationsEnabled((prevState) => !prevState);
   };
 
-
   return (
     <LinearGradient
-      colors={[PRIMARY_COLOR, SECONDARY_COLOR]}
+      colors={["#e81cff", "#40c9ff"]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={styles.container}
     >
       <View style={styles.header}>
@@ -31,9 +32,14 @@ const Settings = () => {
 
       <View style={styles.content}>
         <View style={styles.section}>
-          <View style={styles.sectionIconContainer}>
-            <Ionicons name="notifications-outline" size={24} color={PRIMARY_COLOR} />
-          </View>
+          <LinearGradient
+            colors={["#e81cff", "#40c9ff"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.sectionIconContainer}
+          >
+            <Ionicons name="notifications-outline" size={24} color={TEXT_COLOR} />
+          </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Notifications</Text>
             <Text style={styles.sectionDescription}>Manage your notifications</Text>
@@ -41,8 +47,8 @@ const Settings = () => {
           <Switch
             value={notificationsEnabled}
             onValueChange={toggleNotifications}
-            trackColor={{ false: "#cbd5e1", true: ACCENT_COLOR }}
-            thumbColor={notificationsEnabled ? PRIMARY_COLOR : "#f4f3f4"}
+            trackColor={{ false: "#cbd5e1", true: "#224690" }}
+            thumbColor={notificationsEnabled ? PRIMARY_COLOR : "#224690"}
             style={styles.switch}
           />
         </View>
@@ -50,11 +56,16 @@ const Settings = () => {
         <Pressable 
           style={styles.section}
           onPress={() => navigation.navigate("Profile")}
-          android_ripple={{ color: '#e2e8f0' }}
+          android_ripple={{ color: 'rgba(232, 28, 255, 0.1)' }}
         >
-          <View style={styles.sectionIconContainer}>
-            <Ionicons name="person-outline" size={24} color={PRIMARY_COLOR} />
-          </View>
+          <LinearGradient
+            colors={["#e81cff", "#40c9ff"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.sectionIconContainer}
+          >
+            <Ionicons name="person-outline" size={24} color={TEXT_COLOR} />
+          </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Profile Settings</Text>
             <Text style={styles.sectionDescription}>Manage your profile</Text>
@@ -67,9 +78,14 @@ const Settings = () => {
         </Pressable>
 
         <View style={styles.section}>
-          <View style={styles.sectionIconContainer}>
-            <Ionicons name="settings-outline" size={24} color={PRIMARY_COLOR} />
-          </View>
+          <LinearGradient
+            colors={["#e81cff", "#40c9ff"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.sectionIconContainer}
+          >
+            <Ionicons name="settings-outline" size={24} color={TEXT_COLOR} />
+          </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>App Settings</Text>
             <Text style={styles.sectionDescription}>Customize your experience</Text>
@@ -102,7 +118,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#151537",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
@@ -114,10 +130,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#161537",
     shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 4,
   },
@@ -125,7 +141,6 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: "#f1f5f9",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 16,
@@ -136,7 +151,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: PRIMARY_COLOR,
+    color: "#fff",
     marginBottom: 4,
   },
   sectionDescription: {

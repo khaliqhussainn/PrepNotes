@@ -21,7 +21,7 @@ const StackNavigator = () => {
   return (
     <Stack.Navigator initialRouteName="Auth">
       <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="BottomTab" component={BottomTabNavigator} options={{ headerShown: false }} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Main" component={MainScreen} options={{ headerShown: false }} />
       <Stack.Screen name="BCA" component={Bca} options={{ headerShown: false }} />
       <Stack.Screen name="BSC" component={Bsc} options={{ headerShown: false }} />
@@ -33,7 +33,7 @@ const StackNavigator = () => {
       <Stack.Screen name="Roadmap" component={Roadmap} options={{ headerShown: false }} />
       <Stack.Screen name="Profile" component={Profile} options={{ headerShown: false }} />
       <Stack.Screen name="GroupChat" component={GroupChat} options={{ headerShown: false }} />
-      <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="BottomTab" component={BottomTabNavigator} options={{ headerShown: false }} />
     </Stack.Navigator>
   );
 };

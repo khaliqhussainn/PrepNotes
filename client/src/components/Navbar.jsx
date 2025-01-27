@@ -51,7 +51,7 @@ const Navbar = () => {
         </Pressable>
 
         {/* App Name */}
-        <Text style={styles.appName}>MyApp</Text>
+        <Text style={styles.appName}>PrepNotes</Text>
 
         {/* Animated AI Brain Icon */}
         <Pressable
@@ -92,7 +92,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#192841",
     borderBottomWidth: 1,
     borderBottomColor: "rgba(255,255,255,0.1)",
     ...Platform.select({

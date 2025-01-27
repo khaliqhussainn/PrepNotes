@@ -1,14 +1,29 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, Pressable, StyleSheet, Linking, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  Pressable,
+  StyleSheet,
+  Linking,
+  ScrollView,
+  Animated,
+} from "react-native";
 import { getAuth } from "firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
+import { LinearGradient } from "expo-linear-gradient";
 
 const LeftSidebar = () => {
   const navigation = useNavigation();
   const auth = getAuth();
   const [user, setUser] = useState(null);
+  const [activeLink, setActiveLink] = useState("Profile");
+  const [showQuickStats, setShowQuickStats] = useState(false);
+
+  // Animation value for quick stats
+  const quickStatsAnim = new Animated.Value(0);
 
   useEffect(() => {
     const currentUser = auth.currentUser;
@@ -16,141 +31,216 @@ const LeftSidebar = () => {
       setUser({
         name: currentUser.displayName || "User",
         email: currentUser.email,
-        imageUrl: currentUser.photoURL || "../../assets/icons/profile-placeholder.svg",
+        imageUrl:
+          currentUser.photoURL || "../../assets/icons/profile-placeholder.svg",
+        role: "Student", // You can fetch this from your user data
+        joinDate: "Jan 2024", // You can fetch this from your user data
       });
     }
   }, [auth.currentUser]);
 
-  const handleSocialMediaPress = (url) => {
-    Linking.openURL(url).catch((err) => console.error("Failed to open URL:", err));
+  const toggleQuickStats = () => {
+    setShowQuickStats(!showQuickStats);
+    Animated.timing(quickStatsAnim, {
+      toValue: showQuickStats ? 0 : 1,
+      duration: 300,
+      useNativeDriver: false,
+    }).start();
   };
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.sidebar}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Logo and App Name */}
-          <View style={styles.logoContainer}>
-            <View style={styles.logoWrapper}>
-              <Image
-                source={require("../../assets/logo.jpg")}
-                style={styles.logo}
-                alt="App Logo"
-              />
-            </View>
-            <Text style={styles.appName}>My App</Text>
-          </View>
+  const handleSocialMediaPress = (url) => {
+    Linking.openURL(url).catch((err) =>
+      console.error("Failed to open URL:", err)
+    );
+  };
 
-          {/* User Profile Section */}
-          {user && (
-            <View style={styles.userInfo}>
+  const quickStats = [
+    { icon: "time-outline", label: "Study Time", value: "12h 30m" },
+    { icon: "trophy-outline", label: "Achievements", value: "15" },
+    { icon: "star-outline", label: "Rating", value: "4.8" },
+  ];
+
+  return (
+    <LinearGradient
+      colors={["#6b2488", "#151537", "#1a2c6b"]}
+      locations={[0, 0.3, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.container}
+    >
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+        style={styles.sidebar}
+      >
+        {/* Logo and App Name */}
+        <View style={styles.logoContainer}>
+          <View style={styles.logoWrapper}>
+            <Image
+              source={require("../../assets/logo.jpg")}
+              style={styles.logo}
+              alt="App Logo"
+            />
+          </View>
+          <Text style={styles.appName}>Prep Notes</Text>
+        </View>
+
+        {/* User Profile Section */}
+        {user && (
+          <Pressable onPress={toggleQuickStats}>
+            <LinearGradient
+              colors={["rgba(107, 36, 136, 0.3)", "rgba(21, 21, 55, 0.3)"]}
+              style={styles.userInfo}
+            >
               <View style={styles.profileImageContainer}>
                 <Image
                   source={{ uri: user.imageUrl }}
                   style={styles.profileImage}
                   alt="profile"
                 />
+                <View style={styles.statusIndicator} />
               </View>
               <View style={styles.userDetails}>
                 <Text style={styles.userName}>{user.name}</Text>
                 <Text style={styles.userEmail}>{user.email}</Text>
+                <Text style={styles.userRole}>
+                  {user.role} • Since {user.joinDate}
+                </Text>
               </View>
+            </LinearGradient>
+          </Pressable>
+        )}
+
+        {/* Quick Stats Section */}
+        <Animated.View
+          style={[
+            styles.quickStats,
+            {
+              height: quickStatsAnim.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, 120],
+              }),
+              opacity: quickStatsAnim,
+            },
+          ]}
+        >
+          {quickStats.map((stat, index) => (
+            <View key={index} style={styles.statItem}>
+              <Ionicons name={stat.icon} size={24} color="#F4EBD0" />
+              <Text style={styles.statLabel}>{stat.label}</Text>
+              <Text style={styles.statValue}>{stat.value}</Text>
             </View>
-          )}
+          ))}
+        </Animated.View>
 
-          {/* Navigation Links */}
-          <View style={styles.navLinksContainer}>
+        {/* Navigation Links */}
+        <View style={styles.navLinksContainer}>
+          {[
+            { name: "Profile", icon: "person-outline" },
+            { name: "Settings", icon: "settings-outline" },
+            { name: "Help", icon: "help-circle-outline" },
+          ].map((link) => (
             <Pressable
-              style={({pressed}) => [styles.navLink, pressed && styles.navLinkPressed]}
-              onPress={() => navigation.navigate("Profile")}
+              key={link.name}
+              style={({ pressed }) => [
+                styles.navLink,
+                activeLink === link.name && styles.navLinkActive,
+                pressed && styles.navLinkPressed,
+              ]}
+              onPress={() => {
+                setActiveLink(link.name);
+                navigation.navigate(link.name);
+              }}
             >
-              <Ionicons name="person-outline" size={24} color="#fff" />
-              <Text style={styles.navLinkText}>Profile</Text>
+              <Ionicons name={link.icon} size={24} color="#F4EBD0" />
+              <Text style={styles.navLinkText}>{link.name}</Text>
+              {link.badge && (
+                <View style={styles.badge}>
+                  <Text style={styles.badgeText}>{link.badge}</Text>
+                </View>
+              )}
             </Pressable>
+          ))}
+        </View>
 
-            <Pressable
-              style={({pressed}) => [styles.navLink, pressed && styles.navLinkPressed]}
-              onPress={() => navigation.navigate("Settings")}
-            >
-              <Ionicons name="settings-outline" size={24} color="#fff" />
-              <Text style={styles.navLinkText}>Settings</Text>
-            </Pressable>
+        {/* Developer Mention Section */}
+        <View style={styles.footer}>
+          <LinearGradient
+            colors={["rgba(107, 36, 136, 0.2)", "rgba(21, 21, 55, 0.2)"]}
+            style={styles.footerContent}
+          >
+            <Text style={styles.footerText}>Developed by Khalique Hussain</Text>
+            <Text style={styles.footerSubtext}>
+              for any queries contact me at-
+            </Text>
 
-            <Pressable
-              style={({pressed}) => [styles.navLink, pressed && styles.navLinkPressed]}
-              onPress={() => navigation.navigate("Help")}
-            >
-              <Ionicons name="help-outline" size={24} color="#fff" />
-              <Text style={styles.navLinkText}>Help</Text>
-            </Pressable>
-          </View>
-
-          {/* Developer Mention Section */}
-          <View style={styles.footer}>
-            <View style={styles.footerContent}>
-              <Text style={styles.footerText}>Developed by Khalique Hussain</Text>
-              <Text style={styles.footerSubtext}>for any queries contact me at-</Text>
-
-              {/* Social Media Icons */}
-              <View style={styles.socialMediaIcons}>
-                <Pressable 
-                  style={styles.socialIcon}
-                  onPress={() => handleSocialMediaPress("https://facebook.com")}
+            {/* Social Media Icons */}
+            <View style={styles.socialMediaIcons}>
+              {[
+                {
+                  name: "facebook",
+                  color: "#3b5998",
+                  url: "https://facebook.com",
+                },
+                {
+                  name: "twitter",
+                  color: "#1da1f2",
+                  url: "https://x.com/KhaliqHussainnn",
+                },
+                {
+                  name: "instagram",
+                  color: "#e1306c",
+                  url: "https://www.instagram.com/khaliqhussain_/",
+                },
+                {
+                  name: "linkedin",
+                  color: "#0077b5",
+                  url: "http://linkedin.com/in/khaliquehussain7",
+                },
+              ].map((social, index) => (
+                <Pressable
+                  key={index}
+                  style={[
+                    styles.socialIcon,
+                    { backgroundColor: `${social.color}20` },
+                  ]}
+                  onPress={() => handleSocialMediaPress(social.url)}
                 >
-                  <FontAwesome name="facebook" size={24} color="#3b5998" />
+                  <FontAwesome
+                    name={social.name}
+                    size={24}
+                    color={social.color}
+                  />
                 </Pressable>
-                <Pressable 
-                  style={styles.socialIcon}
-                  onPress={() => handleSocialMediaPress("https://x.com/KhaliqHussainnn")}
-                >
-                  <FontAwesome name="twitter" size={24} color="#1da1f2" />
-                </Pressable>
-                <Pressable 
-                  style={styles.socialIcon}
-                  onPress={() => handleSocialMediaPress("https://www.instagram.com/khaliqhussain_/")}
-                >
-                  <FontAwesome name="instagram" size={24} color="#e1306c" />
-                </Pressable>
-                <Pressable 
-                  style={styles.socialIcon}
-                  onPress={() => handleSocialMediaPress("http://linkedin.com/in/khaliquehussain7")}
-                >
-                  <FontAwesome name="linkedin" size={24} color="#0077b5" />
-                </Pressable>
-              </View>
+              ))}
             </View>
-          </View>
-        </ScrollView>
-      </View>
-    </View>
+          </LinearGradient>
+        </View>
+      </ScrollView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     height: "100%",
-    backgroundColor: "#f8f9fa",
+    paddingBottom: 80,
   },
   sidebar: {
     flex: 1,
-    backgroundColor: "#192841",
     borderBottomRightRadius: 30,
     shadowColor: "#000",
     shadowOffset: { width: 4, height: 0 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
-    paddingBottom: 50,
-
   },
   scrollContent: {
     paddingHorizontal: 24,
     paddingTop: 48,
-    paddingBottom: 32,
-    flexGrow: 1, // Ensures content can grow and be scrollable
+    paddingBottom: 64, // Increased padding to ensure bottom content is visible
+    flexGrow: 1,
+    marginBottom: 30,
   },
   logoContainer: {
     alignItems: "center",
@@ -159,7 +249,7 @@ const styles = StyleSheet.create({
   logoWrapper: {
     padding: 4,
     borderRadius: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
   },
   logo: {
     width: 90,
@@ -180,22 +270,33 @@ const styles = StyleSheet.create({
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 36,
+    marginBottom: 16,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
   },
   profileImageContainer: {
+    position: "relative",
     padding: 3,
     borderRadius: 35,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
   },
   profileImage: {
     width: 64,
     height: 64,
     borderRadius: 32,
+  },
+  statusIndicator: {
+    position: "absolute",
+    bottom: 3,
+    right: 3,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    backgroundColor: "#4CAF50",
+    borderWidth: 2,
+    borderColor: "#151537",
   },
   userDetails: {
     flex: 1,
@@ -210,19 +311,52 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: 14,
     color: "rgba(244, 235, 208, 0.7)",
+    marginBottom: 4,
+  },
+  userRole: {
+    fontSize: 12,
+    color: "rgba(244, 235, 208, 0.5)",
+  },
+  quickStats: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 24,
+    overflow: "hidden",
+  },
+  statItem: {
+    flex: 1,
+    alignItems: "center",
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    borderRadius: 12,
+    marginHorizontal: 4,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: "rgba(244, 235, 208, 0.7)",
+    marginTop: 4,
+  },
+  statValue: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#F4EBD0",
   },
   navLinksContainer: {
     gap: 12,
-    marginBottom: 36, // Added margin to ensure space before footer
+    marginBottom: 36,
   },
   navLink: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
     borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
+    position: "relative",
+  },
+  navLinkActive: {
+    backgroundColor: "rgba(107, 36, 136, 0.3)",
+    borderColor: "#6b2488",
   },
   navLinkPressed: {
     backgroundColor: "rgba(255, 255, 255, 0.15)",
@@ -233,6 +367,20 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#F4EBD0",
     marginLeft: 12,
+    flex: 1,
+  },
+  badge: {
+    backgroundColor: "#6b2488",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    position: "absolute",
+    right: 16,
+  },
+  badgeText: {
+    color: "#F4EBD0",
+    fontSize: 12,
+    fontWeight: "600",
   },
   footer: {
     marginTop: "auto",
@@ -242,6 +390,8 @@ const styles = StyleSheet.create({
   },
   footerContent: {
     alignItems: "center",
+    padding: 20,
+    borderRadius: 16,
   },
   footerText: {
     fontSize: 18,
@@ -262,7 +412,6 @@ const styles = StyleSheet.create({
   socialIcon: {
     padding: 12,
     borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.08)",
     borderWidth: 1,
     borderColor: "rgba(255, 255, 255, 0.1)",
   },

@@ -15,7 +15,7 @@ import {
   Dimensions,
   StatusBar,
 } from "react-native";
-
+import { LinearGradient } from "expo-linear-gradient";
 const { width, height } = Dimensions.get("window");
 
 const GEMINI_API_KEY = "AIzaSyCvoVrIPhY9nfN7ykkV5n-BWfBlg36e3WU";
@@ -86,10 +86,7 @@ const AIStudentHelper = () => {
       );
 
       const data = await response.json();
-      console.log("Full API Response:", data);
-
-      let reply =
-        data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+      let reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
       reply = reply.replace(/\*/g, "");
 
       const geminiMessage = { text: reply, sender: "gemini" };
@@ -104,7 +101,12 @@ const AIStudentHelper = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View
+    <LinearGradient
+      colors={item.sender === "user" 
+        ? ['#6b2488', '#151537']
+        : ['#ffffff', '#ffffff']}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
       style={[
         styles.message,
         item.sender === "user" ? styles.userMessage : styles.assistantMessage,
@@ -120,63 +122,71 @@ const AIStudentHelper = () => {
       >
         {item.text}
       </Text>
-    </View>
+    </LinearGradient>
   );
 
   return (
     <View style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#F4F4F4" />
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
-          <Text style={styles.headerText}>Student AI Assistant</Text>
-        </View>
-
-        {messages.length === 0 && (
-          <Animated.View
-            style={[styles.welcomeContainer, { opacity: fadeAnim }]}
-          >
-            <Text style={styles.welcomeText}>Welcome</Text>
-            <Text style={styles.subWelcomeText}>How can I help you today?</Text>
-          </Animated.View>
-        )}
-
-        <KeyboardAvoidingView
-          style={styles.keyboardContainer}
-          behavior={Platform.OS === "ios" ? "padding" : "height"}
-        >
-          <FlatList
-            data={messages}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            contentContainerStyle={styles.messagesContainer}
-            inverted
-            showsVerticalScrollIndicator={false}
-          />
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="How can I help you?"
-              placeholderTextColor="#A0A0A0"
-              value={msg}
-              onChangeText={setMsg}
-              multiline
-              numberOfLines={3}
-            />
-            <TouchableOpacity
-              style={styles.sendButton}
-              onPress={handleButtonClick}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Text style={styles.sendButtonText}>Send</Text>
-              )}
-            </TouchableOpacity>
+      <StatusBar barStyle="light-content" backgroundColor="#151537" />
+      <LinearGradient
+        colors={['#6b2488', '#151537', '#1a2c6b']}
+        locations={[0, 0.3, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradient}
+      >
+        <SafeAreaView style={styles.safeArea}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Student AI Assistant</Text>
           </View>
-        </KeyboardAvoidingView>
-      </SafeAreaView>
+
+          {messages.length === 0 && (
+            <Animated.View
+              style={[styles.welcomeContainer, { opacity: fadeAnim }]}
+            >
+              <Text style={styles.welcomeText}>Welcome</Text>
+              <Text style={styles.subWelcomeText}>How can I help you today?</Text>
+            </Animated.View>
+          )}
+
+          <KeyboardAvoidingView
+            style={styles.keyboardContainer}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+          >
+            <FlatList
+              data={messages}
+              renderItem={renderItem}
+              keyExtractor={(item, index) => index.toString()}
+              contentContainerStyle={styles.messagesContainer}
+              inverted
+              showsVerticalScrollIndicator={false}
+            />
+
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                placeholder="How can I help you?"
+                placeholderTextColor="rgba(255,255,255,0.6)"
+                value={msg}
+                onChangeText={setMsg}
+                multiline
+                numberOfLines={3}
+              />
+              <TouchableOpacity
+                style={styles.sendButton}
+                onPress={handleButtonClick}
+                disabled={loading}
+              >
+                {loading ? (
+                  <ActivityIndicator size="small" color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.sendButtonText}>Send</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </KeyboardAvoidingView>
+        </SafeAreaView>
+      </LinearGradient>
     </View>
   );
 };
@@ -184,7 +194,9 @@ const AIStudentHelper = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F4F4",
+  },
+  gradient: {
+    flex: 1,
   },
   safeArea: {
     flex: 1,
@@ -192,12 +204,11 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 15,
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: "#E0E0E0",
+    borderBottomColor: "rgba(255,255,255,0.1)",
   },
   headerText: {
-    color: "#1A1A2C",
+    color: "#FFFFFF",
     fontSize: 20,
     fontWeight: "600",
   },
@@ -209,12 +220,12 @@ const styles = StyleSheet.create({
   welcomeText: {
     fontSize: 28,
     fontWeight: "bold",
-    color: "#1A1A2C",
+    color: "#FFFFFF",
     marginBottom: 10,
   },
   subWelcomeText: {
     fontSize: 16,
-    color: "#6B7280",
+    color: "rgba(255,255,255,0.8)",
   },
   keyboardContainer: {
     flex: 1,
@@ -230,51 +241,51 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     marginBottom: 10,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   userMessage: {
     alignSelf: "flex-end",
-    backgroundColor: "#1A1A2C",
   },
   assistantMessage: {
     alignSelf: "flex-start",
     backgroundColor: "#FFFFFF",
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: "rgba(255,255,255,0.1)",
   },
   messageText: {
     fontSize: 15,
+    lineHeight: 20,
   },
   userMessageText: {
     color: "#FFFFFF",
   },
   assistantMessageText: {
-    color: "#1A1A2C",
+    color: "#151537",
   },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     padding: 10,
-    backgroundColor: "#F4F4F4",
+    // backgroundColor: "rgba(255,255,255,0.1)",
   },
   input: {
     flex: 1,
     maxHeight: 100,
-    backgroundColor: "#FFFFFF",
-    color: "#1A1A2C",
+    backgroundColor: "rgba(255,255,255,0.1)",
+    color: "#FFFFFF",
     borderRadius: 20,
     paddingHorizontal: 15,
     paddingVertical: 10,
     marginRight: 10,
     fontSize: 15,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    borderColor: "rgba(255,255,255,0.2)",
   },
   sendButton: {
-    backgroundColor: "#1A1A2C",
+    backgroundColor: "#C900FF",
     borderRadius: 20,
     padding: 12,
     width: 70,

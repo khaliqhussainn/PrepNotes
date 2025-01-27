@@ -7,57 +7,53 @@ import {
   FlatList,
   Dimensions,
   Platform,
+  Animated,
+  Easing,
 } from "react-native";
 import LeftSidebar from "../components/LeftSideBar";
 import { useNavigation } from "@react-navigation/native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { getAuth, signOut } from "firebase/auth";
+import { getAuth } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import StudyPlanner from '../components/StudyPlanner'; // Import the StudyPlanner component
+import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "../components/Navbar";
-import GroupChat from "../components/GroupChat"; // Import the GroupChat component
-
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const auth = getAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const fadeAnim = useState(new Animated.Value(1))[0];
 
   const courses = [
     {
       id: 1,
       name: "Courses",
-      image: "https://link-to-react-native-image.jpg",
       link: "Courses",
       icon: "book-outline",
     },
     {
       id: 2,
       name: "Roadmaps",
-      image: "https://link-to-js-image.jpg",
       link: "Roadmap",
       icon: "map-outline",
     },
     {
       id: 3,
       name: "JHU Entrance PYQ",
-      image: "https://link-to-firebase-image.jpg",
       link: "Entrance",
       icon: "school-outline",
     },
     {
       id: 4,
       name: "Study Planner",
-      image: "https://link-to-study-planner-image.jpg",
       link: "StudyPlanner",
       icon: "calendar-outline",
     },
     {
       id: 5,
       name: "Group Chat",
-      image: "https://link-to-group-chat-image.jpg",
       link: "GroupChat",
       icon: "chatbubbles-outline",
     },
@@ -73,41 +69,68 @@ const HomeScreen = () => {
     }
   }, []);
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: isSidebarOpen ? 0.3 : 1,
+      duration: 300,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [isSidebarOpen]);
+
   const renderCourse = ({ item }) => (
     <Pressable
-      style={styles.courseContainer}
+      style={({ pressed }) => [
+        styles.courseContainer,
+        { transform: [{ scale: pressed ? 0.95 : 1 }] },
+      ]}
       onPress={() => navigation.navigate(item.link)}
     >
-      <View style={styles.courseIconContainer}>
+      <LinearGradient
+        colors={["#e81cff", "#40c9ff"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.courseIconContainer}
+      >
         <Ionicons name={item.icon} size={40} color="#fff" />
-      </View>
+      </LinearGradient>
       <Text style={styles.courseName}>{item.name}</Text>
     </Pressable>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Navbar />
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#6b2488', '#151537', '#1a2c6b']}
+        locations={[0, 0.3, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.backgroundGradient}
+      />
 
-      {isSidebarOpen && (
-        <LeftSidebar
-          isSidebarOpen={isSidebarOpen}
-          setIsSidebarOpen={setIsSidebarOpen}
-          user={user}
-          navigation={navigation}
-        />
-      )}
+      <SafeAreaView style={styles.content}>
+        <Navbar />
 
-      <View style={[styles.mainContent, isSidebarOpen && styles.dimmedContent]}>
-        <FlatList
-          data={courses}
-          renderItem={renderCourse}
-          keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={styles.coursesList}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-    </SafeAreaView>
+        {isSidebarOpen && (
+          <LeftSidebar
+            isSidebarOpen={isSidebarOpen}
+            setIsSidebarOpen={setIsSidebarOpen}
+            user={user}
+            navigation={navigation}
+          />
+        )}
+
+        <Animated.View style={[styles.mainContent, { opacity: fadeAnim }]}>
+          <FlatList
+            data={courses}
+            renderItem={renderCourse}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.coursesList}
+            showsVerticalScrollIndicator={false}
+          />
+        </Animated.View>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -116,79 +139,46 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f2f5",
   },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    backgroundColor: "#192841",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
-    ...Platform.select({
-      ios: {
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-      },
-      android: {
-        elevation: 5,
-      },
-    }),
+  backgroundGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
   },
-  menuButton: {
-    padding: 8,
-    borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
-  },
-  topButtons: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  iconButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  iconButtonText: {
-    color: "white",
-    marginLeft: 8,
-    fontSize: 16,
-    fontWeight: "500",
+  content: {
+    flex: 1,
+    zIndex: 1,
   },
   mainContent: {
     flex: 1,
     zIndex: 1,
-  },
-  dimmedContent: {
-    opacity: 0.3,
-    backgroundColor: "rgba(0,0,0,0.5)",
+    paddingBottom: 60, // Add padding to accommodate the bottom bar
   },
   coursesList: {
     padding: 16,
     gap: 16,
+    paddingBottom: 20,
   },
   courseContainer: {
-    backgroundColor: "#192841",
+    overflow: 'hidden',
     borderRadius: 16,
     padding: 24,
     marginBottom: 16,
     width: width - 32,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: 'rgba(107, 36, 136, 0.15)', // Purple tint matching background
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backdropFilter: Platform.OS === 'web' ? 'blur(10px)' : undefined,
     ...Platform.select({
       ios: {
-        shadowColor: "#000",
+        shadowColor: "#e81cff",
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4.65,
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
       },
       android: {
         elevation: 8,
@@ -199,12 +189,15 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     borderRadius: 40,
-    backgroundColor: "rgba(255,255,255,0.1)",
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: "rgba(255,255,255,0.15)",
+    shadowColor: "#e81cff",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
   },
   courseName: {
     fontSize: 20,
@@ -212,5 +205,8 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     letterSpacing: 0.5,
+    textShadowColor: 'rgba(232, 28, 255, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
 });

@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
+import { LinearGradient } from "expo-linear-gradient";
 
 const { width } = Dimensions.get('window');
 
@@ -104,104 +105,114 @@ const careerFields = [
 
 const Roadmap = () => {
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView
-        contentContainerStyle={styles.container}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>Roadmaps</Text>
-          <Text style={styles.subtitle}>Choose Your Career Path</Text>
-        </View>
+    <LinearGradient
+      colors={['#6b2488', '#151537', '#1a2c6b']}
+      locations={[0, 0.3, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBackground}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.headerContainer}>
+            <Text style={styles.title}>Roadmaps</Text>
+            <Text style={styles.subtitle}>Choose Your Career Path</Text>
+          </View>
 
-        <View style={styles.timelineContainer}>
-          {careerFields.map((field, index) => (
-            <View key={field.category} style={styles.timelineItem}>
-              <View style={styles.timelineMarker}>
-                <View style={[styles.timelineDot, { 
-                  backgroundColor: getColorForIndex(index) 
-                }]} />
-              </View>
-              <View style={styles.cardContainer}>
-                <View style={[styles.timelineContent, { 
-                  borderLeftColor: getColorForIndex(index) 
-                }]}>
-                  <Text style={styles.categoryTitle}>{field.category}</Text>
-                  <Text style={styles.categoryDescription}>{field.description}</Text>
+          <View style={styles.timelineContainer}>
+            {careerFields.map((field, index) => (
+              <View key={field.category} style={styles.timelineItem}>
+                <View style={styles.timelineMarker}>
+                  <View style={[styles.timelineDot, { 
+                    backgroundColor: getColorForIndex(index) 
+                  }]} />
+                </View>
+                <View style={styles.cardContainer}>
+                  <View style={[styles.timelineContent, { 
+                    borderLeftColor: getColorForIndex(index) 
+                  }]}>
+                    <Text style={styles.categoryTitle}>{field.category}</Text>
+                    <Text style={styles.categoryDescription}>{field.description}</Text>
 
-                  <View style={styles.sectionSeparator} />
+                    <View style={styles.sectionSeparator} />
 
-                  <View style={styles.skillsSection}>
-                    <Text style={styles.sectionTitle}>Key Skills</Text>
-                    {field.skills.map((skill) => (
-                      <View key={skill} style={styles.skillRow}>
-                        <Text style={styles.skillDot}>•</Text>
-                        <Text style={styles.skillText}>{skill}</Text>
-                      </View>
-                    ))}
-                  </View>
-
-                  <View style={styles.sectionSeparator} />
-
-                  <View style={styles.technologiesSection}>
-                    <Text style={styles.sectionTitle}>Core Technologies</Text>
-                    <View style={styles.technologiesGrid}>
-                      {field.technologies.map((tech) => (
-                        <View key={tech} style={styles.techBadge}>
-                          <Text style={styles.techBadgeText}>{tech.split(':')[0]}</Text>
+                    <View style={styles.skillsSection}>
+                      <Text style={styles.sectionTitle}>Key Skills</Text>
+                      {field.skills.map((skill) => (
+                        <View key={skill} style={styles.skillRow}>
+                          <Text style={styles.skillDot}>•</Text>
+                          <Text style={styles.skillText}>{skill}</Text>
                         </View>
                       ))}
+                    </View>
+
+                    <View style={styles.sectionSeparator} />
+
+                    <View style={styles.technologiesSection}>
+                      <Text style={styles.sectionTitle}>Core Technologies</Text>
+                      <View style={styles.technologiesGrid}>
+                        {field.technologies.map((tech) => (
+                          <View key={tech} style={styles.techBadge}>
+                            <Text style={styles.techBadgeText}>{tech.split(':')[0]}</Text>
+                          </View>
+                        ))}
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-            </View>
-          ))}
-        </View>
+            ))}
+          </View>
 
-        <View style={styles.roadmapContainer}>
-          <Text style={styles.roadmapTitle}>Career Evolution</Text>
-          {[
-            { stage: 'Foundations', description: 'Build core competencies and technical fundamentals' },
-            { stage: 'Specialization', description: 'Deep dive into chosen technological domain' },
-            { stage: 'Professional Growth', description: 'Develop advanced skills and industry recognition' },
-            { stage: 'Leadership', description: 'Drive innovation and strategic technological initiatives' }
-          ].map((path, index) => (
-            <View key={path.stage} style={styles.evolutionStage}>
-              <View style={[styles.stageNumberContainer, { 
-                backgroundColor: getColorForIndex(index) 
-              }]}>
-                <Text style={styles.stageNumber}>{index + 1}</Text>
+          <View style={styles.roadmapContainer}>
+            <Text style={styles.roadmapTitle}>Career Evolution</Text>
+            {[
+              { stage: 'Foundations', description: 'Build core competencies and technical fundamentals' },
+              { stage: 'Specialization', description: 'Deep dive into chosen technological domain' },
+              { stage: 'Professional Growth', description: 'Develop advanced skills and industry recognition' },
+              { stage: 'Leadership', description: 'Drive innovation and strategic technological initiatives' }
+            ].map((path, index) => (
+              <View key={path.stage} style={styles.evolutionStage}>
+                <View style={[styles.stageNumberContainer, { 
+                  backgroundColor: getColorForIndex(index) 
+                }]}>
+                  <Text style={styles.stageNumber}>{index + 1}</Text>
+                </View>
+                <View style={styles.stageDetails}>
+                  <Text style={styles.stageTitle}>{path.stage}</Text>
+                  <Text style={styles.stageDescription}>{path.description}</Text>
+                </View>
               </View>
-              <View style={styles.stageDetails}>
-                <Text style={styles.stageTitle}>{path.stage}</Text>
-                <Text style={styles.stageDescription}>{path.description}</Text>
-              </View>
-            </View>
-          ))}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+            ))}
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 // Helper function to generate dynamic colors
 const getColorForIndex = (index) => {
   const colors = [
-    '#3498db',  // Bright Blue
+    '#6b2488',  // Purple
+    '#1a2c6b',  // Dark Blue
+    '#151537',  // Navy
     '#2ecc71',  // Emerald Green
     '#e74c3c',  // Vibrant Red
-    '#f39c12',  // Bright Orange
-    '#9b59b6',  // Purple
-    '#1abc9c'   // Turquoise
+    '#f39c12'   // Bright Orange
   ];
   return colors[index % colors.length];
 };
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: '#111b2c',
   },
   container: {
     flexGrow: 1,
@@ -211,21 +222,27 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
-    backgroundColor: '#080d15',
+    backgroundColor: '#CC00FE',
     paddingVertical: 20,
     borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800',
     color: '#FFFFFF',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   subtitle: {
-    fontSize: 14,
+    fontSize: 16,
     color: '#A0A0A0',
     letterSpacing: 1,
+    marginTop: 8,
   },
   timelineContainer: {
     marginBottom: 30,
@@ -261,7 +278,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   timelineContent: {
-    backgroundColor: '#080d15',
+    backgroundColor: '#2A264B',
     borderRadius: 15,
     padding: 20,
     borderLeftWidth: 5,
@@ -281,7 +298,7 @@ const styles = StyleSheet.create({
   },
   sectionSeparator: {
     height: 1,
-    backgroundColor: '#2C2C2C',
+    backgroundColor: '#CC00FE',
     marginVertical: 15,
   },
   sectionTitle: {
@@ -311,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   techBadge: {
-    backgroundColor: '#2C2C2C',
+    backgroundColor: '#CC00FE',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 8,
@@ -323,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   roadmapContainer: {
-    backgroundColor: '#080d15',
+    backgroundColor: 'rgba(8, 13, 21, 0.8)',
     borderRadius: 15,
     padding: 25,
     shadowColor: '#000',
@@ -369,7 +386,6 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     marginBottom: 8,
     width: 200, 
-
   },
   stageDescription: {
     color: '#B0B0B0',

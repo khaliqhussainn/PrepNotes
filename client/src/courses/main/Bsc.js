@@ -1,217 +1,603 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import {
-  Button,
   View,
   Text,
   StyleSheet,
   Alert,
-  Linking,
+  ActivityIndicator,
+  RefreshControl,
+  ScrollView,
+  TextInput,
   Platform,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Linking,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
-import Entypo from "@expo/vector-icons/Entypo";
-import * as MediaLibrary from "expo-media-library";
-import { SectionList } from "react-native";
+import axios from "axios";
+import * as DocumentPicker from "expo-document-picker";
+import { useFocusEffect } from "@react-navigation/native";
+import { MaterialIcons } from "@expo/vector-icons";
+import Navbar from "@/src/components/Navbar";
 
-const ShowDifferentElements = () => {
-  const [visibleElement, setVisibleElement] = useState(null);
+// Constants
+const API_URL = "http://192.168.1.37:5000/api";
+const ACCEPTED_FILE_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+];
 
-  const pdfsByYear = {
-    first: {
-      notes: [
-        { subject: "C", url: require("../../../assets/pdfs/CNotes.pdf") },
-        { subject: "Physics", url: "https://drive.google.com/drive/folders/1PLroZr4hiZeJ8gMXwGlz6qy-1Ra514p4?usp=drive_link" },
-        { subject: "Data Structures", url: "https://drive.google.com/drive/folders/1-3lY2FdBCM7k2wDs_TR5MFiJ_mRz1I0D?usp=drive_link" },
-        { subject: "Linux", url: "https://drive.google.com/drive/folders/1-Ej8-79FqJkk_D7OM4HaXK73IdGGNtcm?usp=drive_link"},
-        { subject: "Operating System", url: "https://drive.google.com/file/d/1JtfWcRzHlhBWdl0wPipo_Xuu18rmjehh/view?usp=drive_link" },
-        { subject: "Environmental Studies", url: "https://drive.google.com/file/d/1sH7aREMEue9w932dOuNfdlUdp7XQlie9/view?usp=drive_link" },
-      ],
-      questionPapers: [
-        { subject: "Math", url: "https://example.com/firstyear_math_qp.pdf" },
-        { subject: "Physics", url: "https://example.com/firstyear_physics_qp.pdf" },
-      ],
-    },
-    second: {
-      notes: [
-        { subject: "Probability and Statistics", url: "https://drive.google.com/drive/folders/1-fekj03D9dBNtjsIgust4-i6jSjT7eFX?usp=drive_link" },
-        { subject: "AI", url: "https://drive.google.com/drive/folders/1-crT2KMYRQXPp3RmvwOR_qvgUJgreqZm?usp=drive_link" },
-        { subject: "Cyber Crime", url: "https://drive.google.com/drive/folders/1-iynXoDU8eZ2D4frILmQnBM8ddmBHGvS?usp=drive_link" },
-        { subject: "DBMS", url: "https://drive.google.com/drive/folders/1-VpLgxHwRKDBsao8iooCNx8Z8gh03w9g?usp=drive_link" },
-        { subject: "Discrete Structures", url: "https://drive.google.com/drive/folders/1-ZcukAzHUsYUtOo91GJqOpNd3k9ENCIW?usp=drive_link" },
-        { subject: "Internet and web technology", url: "https://drive.google.com/file/d/1I2sanGknzvQyD7vXOIvkPqpPhj1Yc6Yt/view?usp=drive_link" },
-        { subject: "C++", url: "https://drive.google.com/drive/folders/1-Y1NJTTe_0H8GpDs0p7prRVW10dCD-0r?usp=drive_link" },
-        { subject: "Wireless", url: "https://drive.google.com/file/d/1jjv2_qC44pF2seq3y0PmNQeppuFX8g64/view?usp=drive_link" },
-      ],
-      questionPapers: [
-        { subject: "Wireless", url: "https://drive.google.com/file/d/1U72nesaNQiDIDBsmddBgCGzy7JnZbt9k/view?usp=drive_link" },
-        { subject: "Cyber Crime", url: "https://drive.google.com/file/d/10qeRHF3tKzZxB-jzCm-EDCUbmBrBcOx8/view?usp=drive_link" },
-        { subject: "Internet and web technology", url: "https://drive.google.com/file/d/14UZHiy85RxEDUvCem9C2xzT2J9r4-JHv/view?usp=drive_link" },
-        { subject: "Discrete Structures", url: "https://drive.google.com/file/d/1ATj0q3jkfNPexHHoLDqv0Y8W2hoqNvGP/view?usp=drive_link" },
-        { subject: "C++", url: "https://drive.google.com/file/d/1bGcc-SPtBi4W1ptLvHMLpxaOvGnPoNwW/view?usp=drive_link" },
-      ],
-    },
-    third: {
-      notes: [
-        { subject: "Data Science", url: "https://drive.google.com/drive/folders/1-o2-ryhriuA3T-ga04bUu3t9VEg3uRj5?usp=drive_link" },
-        { subject: "Java", url: "https://drive.google.com/drive/folders/1-mh7sZMBv48nW_XPpNxNT7olgqxAeHrV?usp=drive_link" },
-        { subject: "Software Engineering", url: "https://drive.google.com/file/d/1wAa5orQJtXst-Xd6rj9t6w-H1lgbdEry/view?usp=drive_link" },
-        { subject: "Digital Marketing", url: "https://drive.google.com/file/d/1HNT2wkp8UuLDIl22XWy6gTr9D_HdAmdp/view?usp=drive_link" },
-      ],
-      questionPapers: [
-        { subject: "All Subjects", url: "https://drive.google.com/file/d/1Q36-8du6VozPxYqNbXU4w6aY6WJ7uSIi/view?usp=drive_link" },
-      ],
-    },
+const INITIAL_FORM_STATE = {
+  title: "",
+  year: "",
+  type: "",
+  subject: "",
+  course: "",
+  folder: "",
+};
+
+const YEAR_MAPPING = {
+  "1st Year": "2023",
+  "2nd Year": "2024",
+  "3rd Year": "2025",
+};
+
+const ResourcesScreen = () => {
+  // State Management
+  const [resources, setResources] = useState({ notes: {}, questions: {} });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
+  const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  // Fetch Resources
+  const fetchResources = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await axios.get(`${API_URL}/files`, {
+        params: { year: YEAR_MAPPING[selectedYear] },
+      });
+      setResources(response.data);
+    } catch (err) {
+      const errorMessage =
+        err.response?.data?.message || "Failed to fetch resources";
+      setError(errorMessage);
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
-  const showElement = (element) => {
-    setVisibleElement(element);
-  };
-
-  useEffect(() => {
-    const checkPermissions = async () => {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== "granted") {
-        alert("Permission to access media library is required!");
-      }
-    };
-    checkPermissions();
-    showElement("first"); // Automatically show first year
-  }, []);
-
-  const openGoogleDriveLink = (url) => {
-    Linking.openURL(url).catch((err) => console.error("Failed to open URL:", err));
-  };
-
-  const renderItem = ({ item, section }) => {
-    const isNotesSection = section.title === "Notes";
-    return (
-      <View style={styles.pdfItem}>
-        <Text style={styles.pdfTitle}>
-          {item.subject} {isNotesSection ? "Notes" : "Question Paper"}
-        </Text>
-        <View style={styles.buttonContainer}>
-          <Button
-            title="View Notes"
-            onPress={() => openGoogleDriveLink(item.url)}
-            color="#249098"
-          />
-          <Entypo
-            style={styles.viewIcon}
-            name="eye"
-            size={24}
-            color="#249098"
-          />
-        </View>
-      </View>
-    );
-  };
-
-  const renderSectionHeader = ({ section: { title } }) => (
-    <Text style={title === "Notes" ? styles.sectionTitle : styles.sectionTwoTitle}>
-      {title}
-    </Text>
+  // Auto-refresh when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      fetchResources();
+    }, [selectedYear])
   );
 
-  const sections = visibleElement
-    ? [
-        {
-          title: "Notes",
-          data: pdfsByYear[visibleElement].notes,
-        },
-        {
-          title: "Question Papers",
-          data: pdfsByYear[visibleElement].questionPapers,
-        },
-      ]
-    : [];
+  // Handle File Opening
+  const handleFileOpen = async (fileUrl) => {
+    try {
+      const supported = await Linking.canOpenURL(fileUrl);
 
-  return (
-    <View style={styles.container}>
-      <View style={styles.buttonRow}>
-        <Button
-          color={visibleElement === "first" ? "#000" : "#fff"}
-          title="1st Year"
-          onPress={() => showElement("first")}
-        />
-        <Button
-          color={visibleElement === "second" ? "#000" : "#fff"}
-          title="2nd Year"
-          onPress={() => showElement("second")}
-        />
-        <Button
-          color={visibleElement === "third" ? "#000" : "#fff"}
-          title="3rd Year"
-          onPress={() => showElement("third")}
+      if (supported) {
+        await Linking.openURL(fileUrl);
+      } else {
+        Alert.alert(
+          "Cannot Open File",
+          "Your device doesn't support opening this type of file.",
+          [{ text: "OK" }]
+        );
+      }
+    } catch (error) {
+      console.error("Error opening file:", error);
+      Alert.alert("Error", "Unable to open the file. Please try again later.", [
+        { text: "OK" },
+      ]);
+    }
+  };
+
+  // Form Input Handler
+  const handleInputChange = (key, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  // Validate Form
+  const validateForm = () => {
+    const requiredFields = ["folder", "type"];
+    const missingFields = requiredFields.filter((field) => !formData[field]);
+
+    if (missingFields.length > 0) {
+      Alert.alert(
+        "Required Fields",
+        `Please fill in the following fields: ${missingFields.join(", ")}`,
+        [{ text: "OK" }]
+      );
+      return false;
+    }
+    return true;
+  };
+
+  // File Upload Handler
+  const handleFileUpload = async () => {
+    if (!validateForm()) return;
+
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ACCEPTED_FILE_TYPES,
+        copyToCacheDirectory: true,
+      });
+
+      if (result.canceled) return;
+
+      const file = result.assets[0];
+      setUploading(true);
+
+      const form = new FormData();
+      form.append("file", {
+        uri: Platform.OS === "ios" ? file.uri.replace("file://", "") : file.uri,
+        type: file.mimeType,
+        name: file.name,
+      });
+
+      // Append form data
+      Object.keys(formData).forEach((key) => {
+        if (formData[key]) {
+          form.append(key, formData[key]);
+        }
+      });
+
+      await axios.post(`${API_URL}/files`, form, {
+        headers: { "Content-Type": "multipart/form-data" },
+        transformRequest: (data) => data,
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          console.log(`Upload progress: ${percentCompleted}%`);
+        },
+      });
+
+      Alert.alert("Success", "File uploaded successfully");
+      setFormData(INITIAL_FORM_STATE);
+      fetchResources();
+    } catch (error) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to upload file";
+      Alert.alert("Error", errorMessage);
+      console.error("File upload error:", error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Render File Item
+  const renderFileItem = useCallback(
+    ({ item: file }) => (
+      <TouchableOpacity
+        key={file.id}
+        style={styles.fileItem}
+        onPress={() => handleFileOpen(file.url)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.fileContent}>
+          <View style={styles.fileHeader}>
+            <MaterialIcons
+              name={
+                file.extension?.toUpperCase() === "PDF"
+                  ? "picture-as-pdf"
+                  : "description"
+              }
+              size={24}
+              color="rgba(255,255,255,0.1"
+              style={styles.fileIcon}
+            />
+            <Text style={styles.fileName} numberOfLines={1}>
+              {file.title || "Untitled"}
+            </Text>
+            <View style={styles.fileTypeBadge}>
+              <Text style={styles.fileType}>{file.extension}</Text>
+            </View>
+          </View>
+
+          <View style={styles.fileDetails}>
+            {file.subject && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{file.subject}</Text>
+              </View>
+            )}
+            {file.year && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{file.year}</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      </TouchableOpacity>
+    ),
+    []
+  );
+
+  // Render Input Field
+  const renderInput = useCallback(
+    ({ placeholder, value, key, required = false }) => (
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={[styles.input, formData[key] && styles.inputFilled]}
+          placeholder={`${placeholder}${required ? " *" : ""}`}
+          placeholderTextColor="#94a3b8"
+          value={value}
+          onChangeText={(text) => handleInputChange(key, text)}
         />
       </View>
-      <SectionList
-        sections={sections}
-        keyExtractor={(item) => item.subject}
-        renderItem={renderItem}
-        renderSectionHeader={renderSectionHeader}
-        stickySectionHeadersEnabled={true} // Add this prop to make section headers sticky
-      />
-    </View>
+    ),
+    [formData]
+  );
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="#6366f1" />
+      </View>
+    );
+  }
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      <Navbar />
+      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.container}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={fetchResources}
+              colors={["#6366f1"]}
+            />
+          }
+        >
+          <View style={styles.yearFilterContainer}>
+            <TouchableOpacity
+              style={[
+                styles.yearFilterButton,
+                selectedYear === "1st Year" && styles.yearFilterButtonSelected,
+              ]}
+              onPress={() => setSelectedYear("1st Year")}
+            >
+              <Text style={styles.yearFilterButtonText}>1st Year</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.yearFilterButton,
+                selectedYear === "2nd Year" && styles.yearFilterButtonSelected,
+              ]}
+              onPress={() => setSelectedYear("2nd Year")}
+            >
+              <Text style={styles.yearFilterButtonText}>2nd Year</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.yearFilterButton,
+                selectedYear === "3rd Year" && styles.yearFilterButtonSelected,
+              ]}
+              onPress={() => setSelectedYear("3rd Year")}
+            >
+              <Text style={styles.yearFilterButtonText}>3rd Year</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.uploadSection}>
+            <Text style={styles.uploadTitle}>Upload New Document</Text>
+            <View style={styles.formContainer}>
+              {renderInput({
+                placeholder: "Document Title",
+                value: formData.title,
+                key: "title",
+              })}
+              {renderInput({
+                placeholder: "Year",
+                value: formData.year,
+                key: "year",
+              })}
+              {renderInput({
+                placeholder: "Type (notes/questions)",
+                value: formData.type,
+                key: "type",
+                required: true,
+              })}
+              {renderInput({
+                placeholder: "Subject",
+                value: formData.subject,
+                key: "subject",
+              })}
+              {renderInput({
+                placeholder: "Course",
+                value: formData.course,
+                key: "course",
+              })}
+              {renderInput({
+                placeholder: "Folder Name",
+                value: formData.folder,
+                key: "folder",
+                required: true,
+              })}
+
+              <TouchableOpacity
+                style={[
+                  styles.uploadButton,
+                  uploading && styles.uploadButtonDisabled,
+                ]}
+                onPress={handleFileUpload}
+                disabled={uploading}
+              >
+                <View style={styles.uploadButtonContent}>
+                  {uploading && (
+                    <ActivityIndicator
+                      size="small"
+                      color="#ffffff"
+                      style={styles.uploadingSpinner}
+                    />
+                  )}
+                  <Text style={styles.uploadButtonText}>
+                    {uploading ? "Uploading..." : "Select & Upload Document"}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {Object.entries(resources).map(([section, folders]) => (
+            <View key={section} style={styles.section}>
+              <Text style={styles.sectionTitle}>
+                {section.charAt(0).toUpperCase() + section.slice(1)}
+              </Text>
+              {Object.keys(folders).length === 0 ? (
+                <View style={styles.emptyContainer}>
+                  <MaterialIcons name="folder-open" size={48} color="#94a3b8" />
+                  <Text style={styles.emptyText}>No {section} available</Text>
+                </View>
+              ) : (
+                Object.entries(folders).map(([folderName, files]) => (
+                  <View key={folderName} style={styles.folderContainer}>
+                    <View style={styles.folderHeader}>
+                      <MaterialIcons
+                        name="folder"
+                        size={24}
+                        color="rgba(255,255,255,0.1"
+                      />
+                      <Text style={styles.folderTitle}>{folderName}</Text>
+                    </View>
+                    <View style={styles.filesGrid}>
+                      {files.map((file) => renderFileItem({ item: file }))}
+                    </View>
+                  </View>
+                ))
+              )}
+            </View>
+          ))}
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
   container: {
     flex: 1,
-    justifyContent: "center",
-    backgroundColor: "#f0f0f0",
   },
-  buttonRow: {
+  scrollView: {
+    flex: 1,
+  },
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f8fafc",
+  },
+  yearFilterContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "100%",
-    backgroundColor: "#249098",
-    paddingVertical: 10,
+    marginVertical: 16,
   },
-  pdfItem: {
-    marginBottom: 20,
-    borderRadius: 5,
-    borderWidth: 0.2,
-    backgroundColor: "#fff",
+  yearFilterButton: {
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: "#e2e8f0",
+  },
+  yearFilterButtonSelected: {
+    backgroundColor: "#1e293b",
+    color: "#ffffff",
+  },
+  yearFilterButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  uploadSection: {
+    backgroundColor: "#ffffff",
+    margin: 16,
+    borderRadius: 16,
+    elevation: 4,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    overflow: "hidden",
+  },
+  uploadTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+    color: "#1e293b",
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e2e8f0",
+  },
+  formContainer: {
+    padding: 20,
+  },
+  inputContainer: {
+    marginBottom: 12,
+  },
+  input: {
+    backgroundColor: "#f8fafc",
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    borderRadius: 12,
     padding: 16,
-    shadowColor: "#000",
+    fontSize: 16,
+    color: "#1e293b",
+  },
+  inputFilled: {
+    backgroundColor: "#ffffff",
+    borderColor: "#6366f1",
+  },
+  uploadButton: {
+    backgroundColor: "#1e293b",
+    padding: 16,
+    borderRadius: 12,
+    marginTop: 8,
+    elevation: 2,
+    shadowColor: "#6366f1",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowRadius: 4,
   },
-  pdfTitle: {
-    color: "#333",
-    textTransform: "uppercase",
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 8,
+  uploadButtonDisabled: {
+    backgroundColor: "#c7d2fe",
   },
-  buttonContainer: {
+  uploadButtonContent: {
     flexDirection: "row",
+    justifyContent: "center",
     alignItems: "center",
   },
-  viewIcon: {
-    marginLeft: 10,
+  uploadingSpinner: {
+    marginRight: 8,
+  },
+  uploadButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    letterSpacing: 0.5,
+  },
+  section: {
+    padding: 16,
   },
   sectionTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#249098",
-    textAlign: "center",
-    backgroundColor: "#f0f0f0",
-    paddingVertical: 10,
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: 16,
+    letterSpacing: 0.5,
   },
-  sectionTwoTitle: {
-    marginTop: 40,
-    fontSize: 24,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#249098",
-    textAlign: "center",
-    backgroundColor: "#f0f0f0",
-    paddingVertical: 10,
+  folderContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  folderHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  folderTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#334155",
+    marginLeft: 8,
+    letterSpacing: 0.3,
+  },
+  filesGrid: {
+    gap: 12,
+  },
+  fileItem: {
+    backgroundColor: "#f8fafc",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    overflow: "hidden",
+  },
+  fileContent: {
+    padding: 16,
+  },
+  fileHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  fileIcon: {
+    marginRight: 8,
+  },
+  fileName: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#334155",
+    flex: 1,
+    marginRight: 8,
+  },
+  fileTypeBadge: {
+    backgroundColor: "#eff6ff",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  fileType: {
+    fontSize: 12,
+    color: "rgba(255,255,255,0.1",
+    fontWeight: "500",
+  },
+  fileDetails: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 8,
+  },
+  fileSubject: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  fileYear: {
+    fontSize: 14,
+    color: "#64748b",
+  },
+  emptyContainer: {
+    backgroundColor: "#ffffff",
+    borderRadius: 16,
+    padding: 24,
+    alignItems: "center",
+    elevation: 2,
+    shadowColor: "#64748b",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  emptyText: {
+    fontSize: 16,
+    color: "#94a3b8",
+    fontStyle: "italic",
   },
 });
 
-export default ShowDifferentElements;
+export default ResourcesScreen;

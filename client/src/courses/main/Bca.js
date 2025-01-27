@@ -19,6 +19,7 @@ import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
 import { useFocusEffect } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
 // Constants
@@ -198,7 +199,7 @@ const ResourcesScreen = () => {
                   : "description"
               }
               size={24}
-              color="rgba(255,255,255,0.1"
+              color="#ffffff"
               style={styles.fileIcon}
             />
             <Text style={styles.fileName} numberOfLines={1}>
@@ -245,159 +246,163 @@ const ResourcesScreen = () => {
 
   if (loading) {
     return (
-      <View style={styles.centered}>
-        <ActivityIndicator size="large" color="#6366f1" />
-      </View>
+      <LinearGradient
+        colors={['#6b2488', '#151537', '#1a2c6b']}
+        locations={[0, 0.3, 1]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.centered}
+      >
+        <ActivityIndicator size="large" color="#ffffff" />
+      </LinearGradient>
     );
   }
-
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <Navbar />
-      <StatusBar barStyle="dark-content" backgroundColor="#f8fafc" />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          refreshControl={
-            <RefreshControl
-              refreshing={refreshing}
-              onRefresh={fetchResources}
-              colors={["#6366f1"]}
-            />
-          }
+    <LinearGradient
+      colors={["#6b2488", "#151537", "#1a2c6b"]}
+      locations={[0, 0.3, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradientBackground}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <Navbar />
+        <StatusBar barStyle="light-content" />
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          style={styles.container}
         >
-          <View style={styles.yearFilterContainer}>
-            <TouchableOpacity
-              style={[
-                styles.yearFilterButton,
-                selectedYear === "1st Year" && styles.yearFilterButtonSelected,
-              ]}
-              onPress={() => setSelectedYear("1st Year")}
-            >
-              <Text style={styles.yearFilterButtonText}>1st Year</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.yearFilterButton,
-                selectedYear === "2nd Year" && styles.yearFilterButtonSelected,
-              ]}
-              onPress={() => setSelectedYear("2nd Year")}
-            >
-              <Text style={styles.yearFilterButtonText}>2nd Year</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.yearFilterButton,
-                selectedYear === "3rd Year" && styles.yearFilterButtonSelected,
-              ]}
-              onPress={() => setSelectedYear("3rd Year")}
-            >
-              <Text style={styles.yearFilterButtonText}>3rd Year</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.uploadSection}>
-            <Text style={styles.uploadTitle}>Upload New Document</Text>
-            <View style={styles.formContainer}>
-              {renderInput({
-                placeholder: "Document Title",
-                value: formData.title,
-                key: "title",
-              })}
-              {renderInput({
-                placeholder: "Year",
-                value: formData.year,
-                key: "year",
-              })}
-              {renderInput({
-                placeholder: "Type (notes/questions)",
-                value: formData.type,
-                key: "type",
-                required: true,
-              })}
-              {renderInput({
-                placeholder: "Subject",
-                value: formData.subject,
-                key: "subject",
-              })}
-              {renderInput({
-                placeholder: "Course",
-                value: formData.course,
-                key: "course",
-              })}
-              {renderInput({
-                placeholder: "Folder Name",
-                value: formData.folder,
-                key: "folder",
-                required: true,
-              })}
-
-              <TouchableOpacity
-                style={[
-                  styles.uploadButton,
-                  uploading && styles.uploadButtonDisabled,
-                ]}
-                onPress={handleFileUpload}
-                disabled={uploading}
-              >
-                <View style={styles.uploadButtonContent}>
-                  {uploading && (
-                    <ActivityIndicator
-                      size="small"
-                      color="#ffffff"
-                      style={styles.uploadingSpinner}
-                    />
-                  )}
-                  <Text style={styles.uploadButtonText}>
-                    {uploading ? "Uploading..." : "Select & Upload Document"}
-                  </Text>
-                </View>
-              </TouchableOpacity>
+          <ScrollView
+            style={styles.scrollView}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={fetchResources}
+                colors={["#ffffff"]}
+              />
+            }
+          >
+            <View style={styles.yearFilterContainer}>
+              {["1st Year", "2nd Year", "3rd Year"].map((year) => (
+                <TouchableOpacity
+                  key={year}
+                  style={[
+                    styles.yearFilterButton,
+                    selectedYear === year && styles.yearFilterButtonSelected,
+                  ]}
+                  onPress={() => setSelectedYear(year)}
+                >
+                  <Text style={styles.yearFilterButtonText}>{year}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
-          </View>
 
-          {Object.entries(resources).map(([section, folders]) => (
-            <View key={section} style={styles.section}>
-              <Text style={styles.sectionTitle}>
-                {section.charAt(0).toUpperCase() + section.slice(1)}
-              </Text>
-              {Object.keys(folders).length === 0 ? (
-                <View style={styles.emptyContainer}>
-                  <MaterialIcons name="folder-open" size={48} color="#94a3b8" />
-                  <Text style={styles.emptyText}>No {section} available</Text>
-                </View>
-              ) : (
-                Object.entries(folders).map(([folderName, files]) => (
-                  <View key={folderName} style={styles.folderContainer}>
-                    <View style={styles.folderHeader}>
-                      <MaterialIcons
-                        name="folder"
-                        size={24}
-                        color="rgba(255,255,255,0.1"
+            <View style={styles.uploadSection}>
+              <Text style={styles.uploadTitle}>Upload New Document</Text>
+              <View style={styles.formContainer}>
+                {renderInput({
+                  placeholder: "Document Title",
+                  value: formData.title,
+                  key: "title",
+                })}
+                {renderInput({
+                  placeholder: "Year",
+                  value: formData.year,
+                  key: "year",
+                })}
+                {renderInput({
+                  placeholder: "Type (notes/questions)",
+                  value: formData.type,
+                  key: "type",
+                  required: true,
+                })}
+                {renderInput({
+                  placeholder: "Subject",
+                  value: formData.subject,
+                  key: "subject",
+                })}
+                {renderInput({
+                  placeholder: "Course",
+                  value: formData.course,
+                  key: "course",
+                })}
+                {renderInput({
+                  placeholder: "Folder Name",
+                  value: formData.folder,
+                  key: "folder",
+                  required: true,
+                })}
+
+                <TouchableOpacity
+                  style={[
+                    styles.uploadButton,
+                    uploading && styles.uploadButtonDisabled,
+                  ]}
+                  onPress={handleFileUpload}
+                  disabled={uploading}
+                >
+                  <View style={styles.uploadButtonContent}>
+                    {uploading && (
+                      <ActivityIndicator
+                        size="small"
+                        color="#ffffff"
+                        style={styles.uploadingSpinner}
                       />
-                      <Text style={styles.folderTitle}>{folderName}</Text>
-                    </View>
-                    <View style={styles.filesGrid}>
-                      {files.map((file) => renderFileItem({ item: file }))}
-                    </View>
+                    )}
+                    <Text style={styles.uploadButtonText}>
+                      {uploading ? "Uploading..." : "Select & Upload Document"}
+                    </Text>
                   </View>
-                ))
-              )}
+                </TouchableOpacity>
+              </View>
             </View>
-          ))}
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+
+            {Object.entries(resources).map(([section, folders]) => (
+              <View key={section} style={styles.section}>
+                <Text style={styles.sectionTitle}>
+                  {section.charAt(0).toUpperCase() + section.slice(1)}
+                </Text>
+                {Object.keys(folders).length === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <MaterialIcons
+                      name="folder-open"
+                      size={48}
+                      color="#94a3b8"
+                    />
+                    <Text style={styles.emptyText}>No {section} available</Text>
+                  </View>
+                ) : (
+                  Object.entries(folders).map(([folderName, files]) => (
+                    <View key={folderName} style={styles.folderContainer}>
+                      <View style={styles.folderHeader}>
+                        <MaterialIcons
+                          name="folder"
+                          size={24}
+                          color="#ffffff"
+                        />
+                        <Text style={styles.folderTitle}>{folderName}</Text>
+                      </View>
+                      <View style={styles.filesGrid}>
+                        {files.map((file) => renderFileItem({ item: file }))}
+                      </View>
+                    </View>
+                  ))
+                )}
+              </View>
+            ))}
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradientBackground: {
+    flex: 1,
+  },
   safeArea: {
     flex: 1,
-    backgroundColor: "#f8fafc",
   },
   container: {
     flex: 1,
@@ -409,7 +414,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f8fafc",
   },
   yearFilterContainer: {
     flexDirection: "row",
@@ -419,67 +423,54 @@ const styles = StyleSheet.create({
   yearFilterButton: {
     padding: 10,
     borderRadius: 8,
-    backgroundColor: "#e2e8f0",
+    backgroundColor: "#0F0F2E",
   },
   yearFilterButtonSelected: {
-    backgroundColor: "#1e293b",
-    color: "#ffffff",
+    backgroundColor: "#6b2488",
   },
   yearFilterButtonText: {
-    color: "#fff",
+    color: "#ffffff",
     fontWeight: "600",
   },
   uploadSection: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     margin: 16,
     borderRadius: 16,
-    elevation: 4,
-    shadowColor: "#64748b",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    overflow: "hidden",
+    padding: 16,
   },
   uploadTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1e293b",
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e2e8f0",
+    color: "#ffffff",
+    marginBottom: 16,
   },
   formContainer: {
-    padding: 20,
+    gap: 12,
   },
   inputContainer: {
     marginBottom: 12,
   },
   input: {
-    backgroundColor: "#f8fafc",
+    // backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "rgba(255, 255, 255, 0.3)",
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: "#1e293b",
+    color: "#ffffff",
   },
   inputFilled: {
-    backgroundColor: "#ffffff",
-    borderColor: "#6366f1",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    borderColor: "#ffffff",
   },
   uploadButton: {
-    backgroundColor: "#1e293b",
+    backgroundColor: "#6b2488",
     padding: 16,
     borderRadius: 12,
     marginTop: 8,
-    elevation: 2,
-    shadowColor: "#6366f1",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
   },
   uploadButtonDisabled: {
-    backgroundColor: "#c7d2fe",
+    backgroundColor: "6b2488",
   },
   uploadButtonContent: {
     flexDirection: "row",
@@ -490,11 +481,9 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   uploadButtonText: {
-    color: "#ffffff",
+    color: "#fff",
     fontSize: 16,
     fontWeight: "600",
-    textAlign: "center",
-    letterSpacing: 0.5,
   },
   section: {
     padding: 16,
@@ -502,20 +491,14 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1e293b",
+    color: "#ffffff",
     marginBottom: 16,
-    letterSpacing: 0.5,
   },
   folderContainer: {
-    backgroundColor: "#ffffff",
+    // backgroundColor: "#54337A",
     borderRadius: 16,
-    padding: 16,
+    // padding: 16,
     marginBottom: 16,
-    elevation: 2,
-    shadowColor: "#64748b",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   folderHeader: {
     flexDirection: "row",
@@ -525,18 +508,17 @@ const styles = StyleSheet.create({
   folderTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#334155",
+    color: "#ffffff",
     marginLeft: 8,
-    letterSpacing: 0.3,
   },
   filesGrid: {
     gap: 12,
   },
   fileItem: {
-    backgroundColor: "#f8fafc",
+    // backgroundColor: "#54337A",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e2e8f0",
+    borderColor: "#54337A",
     overflow: "hidden",
   },
   fileContent: {
@@ -553,19 +535,19 @@ const styles = StyleSheet.create({
   fileName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#334155",
+    color: "#ffffff",
     flex: 1,
     marginRight: 8,
   },
   fileTypeBadge: {
-    backgroundColor: "#eff6ff",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
   },
   fileType: {
     fontSize: 12,
-    color: "rgba(255,255,255,0.1",
+    color: "#ffffff",
     fontWeight: "500",
   },
   fileDetails: {
@@ -574,28 +556,25 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 8,
   },
-  fileSubject: {
-    fontSize: 14,
-    color: "#64748b",
+  badge: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
   },
-  fileYear: {
-    fontSize: 14,
-    color: "#64748b",
+  badgeText: {
+    fontSize: 12,
+    color: "#ffffff",
   },
   emptyContainer: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "rgba(255, 255, 255, 0.1)",
     borderRadius: 16,
     padding: 24,
     alignItems: "center",
-    elevation: 2,
-    shadowColor: "#64748b",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   emptyText: {
     fontSize: 16,
-    color: "#94a3b8",
+    color: "#ffffff",
     fontStyle: "italic",
   },
 });
