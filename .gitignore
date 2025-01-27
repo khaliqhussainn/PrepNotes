@@ -1,0 +1,43 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Expo and EAS
+.expo/
+.expo-shared/
+web-build/
+android/
+ios/
+dist/
+build/
+
+# Logs and cache
+*.log
+*.lock
+*.env
+*.keystore
+.DS_Store
+.env.local
+.env.*.local
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*.bak
+
+# System files
+Thumbs.db
+*.iml
+
+# Backend-specific
+/backend/.env
+venv/
+__pycache__/
+
+# Ignore android and ios folders in the frontend directory
+/frontend/android/
+/frontend/ios/
