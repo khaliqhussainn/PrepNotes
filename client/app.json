@@ -30,8 +30,5 @@
       "package": "com.khaliqhussainn.Docs",
       "versionCode": 3
     }
-  },
-  "overrides": {
-    "@expo/config-plugins": "^8.0.0"
   }
 }
