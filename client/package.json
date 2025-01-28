@@ -82,5 +82,8 @@
         "listUnknownPackages": false
       }
     }
+  },
+  "overrides": {
+    "@expo/config-plugins": "^8.0.0"
   }
 }
