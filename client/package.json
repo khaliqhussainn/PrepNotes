@@ -82,10 +82,5 @@
         "listUnknownPackages": false
       }
     }
-  },
-  "overrides": {
-    "@expo/config-plugins": "^9.0.0",
-    "expo-modules-autolinking": "~2.0.0",
-    "@expo/prebuild-config": "~8.0.0"
   }
 }
