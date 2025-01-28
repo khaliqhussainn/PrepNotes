@@ -8,11 +8,6 @@
       "android"
     ],
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "plugins": [
       [
         "expo-document-picker",
