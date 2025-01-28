@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "Docs",
-    "slug": "Docs",
+    "name": "HamdardDocs",
+    "slug": "hamdarddocs",
     "version": "1.0.0",
-    "scheme": "docs",
+    "scheme": "hamdarddocs",
     "platforms": [
       "ios",
       "android"
@@ -13,22 +13,32 @@
       [
         "expo-document-picker",
         {
-          "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+          "permissions": [
+            "READ_EXTERNAL_STORAGE",
+            "WRITE_EXTERNAL_STORAGE"
+          ]
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ffffff",
+          "image": "./assets/splash-icon.png"
         }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "0c90482f-5d05-4e80-ab71-6be67981afc1"
+        "projectId": "2ac4e880-5752-4b19-9185-4a7188fc149a"
       }
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.khaliqhussainn.Docs"
-        },
+      "bundleIdentifier": "com.HamdardDocs.app"
+    },
     "android": {
-      "package": "com.khaliqhussainn.Docs",
-      "versionCode": 3
-    }
+      "package": "com.HamdardDocs.app"
+    },
+    "owner": "khaliqhussainn"
   }
 }
