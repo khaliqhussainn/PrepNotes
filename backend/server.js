@@ -20,168 +20,76 @@ cloudinary.config({
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = "./uploads";
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    const uploadDir = "/tmp"; // ✅ Vercel allows `/tmp` for file uploads
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
 });
 
-const upload = multer({
-  storage,
-  limits: { fileSize: 100 * 1024 * 1024 } // 100MB
-});
+const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
 
-// Enhanced error handling
-const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next)).catch(next);
-};
-
-// Middleware to handle Multer errors
-app.use((err, req, res, next) => {
-  if (err instanceof multer.MulterError) {
-    // A Multer error occurred when uploading.
-    res.status(400).json({ message: err.message });
-  } else {
-    // Pass the error to the next middleware
-    next(err);
-  }
-});
-
-// Get all files with combined data from Cloudinary and database
-app.get(
-  "/api/files",
-  asyncHandler(async (req, res) => {
+app.get("/api/files", async (req, res) => {
+  try {
     const { year } = req.query;
+    const dbFiles = await prisma.note.findMany({ where: { year } });
 
-    // Fetch files from database
-    const dbFiles = await prisma.note.findMany({
-      where: {
-        year: year ? year : undefined,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Fetch files from Cloudinary
     const cloudinaryFiles = await cloudinary.api.resources({
       type: "upload",
       max_results: 500,
       resource_type: "raw",
     });
 
-    // Combine and organize the data
     const combinedFiles = dbFiles.map(dbFile => {
       const cloudinaryFile = cloudinaryFiles.resources.find(
         cf => cf.secure_url === dbFile.fileUrl
       );
-
       return {
         ...dbFile,
         cloudinaryData: cloudinaryFile || {},
-        extension: dbFile.fileUrl.split('.').pop().toUpperCase(),
       };
     });
 
-    // Group files by type (notes/questions) and folder
-    const organizedFiles = {
-      notes: {},
-      questions: {}
-    };
+    res.json(combinedFiles);
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
-    combinedFiles.forEach(file => {
-      const section = file.type.toLowerCase().includes('question') ? 'questions' : 'notes';
-      const folder = file.folder || 'Uncategorized';
-
-      if (!organizedFiles[section][folder]) {
-        organizedFiles[section][folder] = [];
-      }
-
-      organizedFiles[section][folder].push({
-        id: file.id,
-        title: file.title,
-        url: file.fileUrl,
-        extension: file.extension,
-        subject: file.subject,
-        course: file.course,
-        year: file.year,
-        createdAt: file.createdAt,
-      });
-    });
-
-    res.json(organizedFiles);
-  })
-);
-
-// Upload endpoint with enhanced error handling
-app.post(
-  "/api/files",
-  upload.single("file"),
-  asyncHandler(async (req, res) => {
+app.post("/api/files", upload.single("file"), async (req, res) => {
+  try {
     if (!req.file) {
-      throw new Error("No file uploaded");
+      return res.status(400).json({ message: "No file uploaded" });
     }
 
     const { title, year, subject, course, type, folder } = req.body;
+    console.log("Uploading file to Cloudinary:", req.file.path);
 
-    try {
-      console.log("Uploading file to Cloudinary:", req.file.path);
-
-      // Upload to Cloudinary
-      const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "raw",
-        folder: folder || "uploads",
-      });
-
-      console.log("Cloudinary upload result:", cloudinaryResult);
-
-      // Save to database
-      const note = await prisma.note.create({
-        data: {
-          title: title || req.file.originalname,
-          fileUrl: cloudinaryResult.secure_url,
-          year,
-          subject,
-          course,
-          type: type || "notes",
-          folder: folder || "Uncategorized",
-        },
-      });
-
-      // Clean up uploaded file
-      fs.unlinkSync(req.file.path);
-
-      res.json(note);
-    } catch (error) {
-      console.error("Error uploading file to Cloudinary:", error);
-      throw new Error("Failed to upload file to Cloudinary: " + error.message);
-    }
-  })
-);
-
-// Delete endpoint
-app.delete(
-  "/api/files/:id",
-  asyncHandler(async (req, res) => {
-    const note = await prisma.note.findUnique({
-      where: { id: parseInt(req.params.id) },
+    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "raw",
+      folder: folder || "uploads",
     });
 
-    if (!note) {
-      throw new Error("File not found");
-    }
+    console.log("Cloudinary upload result:", cloudinaryResult);
 
-    // Delete from Cloudinary
-    const publicId = note.fileUrl.split("/").pop().split(".")[0];
-    await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
-
-    // Delete from database
-    await prisma.note.delete({
-      where: { id: parseInt(req.params.id) },
+    const note = await prisma.note.create({
+      data: {
+        title: title || req.file.originalname,
+        fileUrl: cloudinaryResult.secure_url,
+        year,
+        subject,
+        course,
+        type: type || "notes",
+        folder: folder || "Uncategorized",
+      },
     });
 
-    res.json({ message: "File deleted successfully" });
-  })
-);
+    res.json(note);
+  } catch (error) {
+    console.error("Error uploading file:", error);
+    res.status(500).json({ message: "Upload failed" });
+  }
+});
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// ✅ Required for Vercel's serverless function
+module.exports = app;

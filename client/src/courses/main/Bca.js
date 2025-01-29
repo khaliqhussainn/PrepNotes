@@ -23,7 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
 // Constants
-const API_URL = "https://hamdard-docs.vercel.app";
+const API_URL = "https://hamdarddoc.vercel.app/";
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
@@ -69,6 +69,7 @@ const ResourcesScreen = () => {
         err.response?.data?.message || "Failed to fetch resources";
       setError(errorMessage);
       Alert.alert("Error", errorMessage);
+      console.error("Error fetching resources:", err);
     } finally {
       setLoading(false);
       setRefreshing(false);
