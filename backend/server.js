@@ -55,61 +55,66 @@ app.get(
   asyncHandler(async (req, res) => {
     const { year } = req.query;
 
-    // Fetch files from database
-    const dbFiles = await prisma.note.findMany({
-      where: {
-        year: year ? year : undefined,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    // Fetch files from Cloudinary
-    const cloudinaryFiles = await cloudinary.api.resources({
-      type: "upload",
-      max_results: 500,
-      resource_type: "raw",
-    });
-
-    // Combine and organize the data
-    const combinedFiles = dbFiles.map(dbFile => {
-      const cloudinaryFile = cloudinaryFiles.resources.find(
-        cf => cf.secure_url === dbFile.fileUrl
-      );
-
-      return {
-        ...dbFile,
-        cloudinaryData: cloudinaryFile || {},
-        extension: dbFile.fileUrl.split('.').pop().toUpperCase(),
-      };
-    });
-
-    // Group files by type (notes/questions) and folder
-    const organizedFiles = {
-      notes: {},
-      questions: {}
-    };
-
-    combinedFiles.forEach(file => {
-      const section = file.type.toLowerCase().includes('question') ? 'questions' : 'notes';
-      const folder = file.folder || 'Uncategorized';
-
-      if (!organizedFiles[section][folder]) {
-        organizedFiles[section][folder] = [];
-      }
-
-      organizedFiles[section][folder].push({
-        id: file.id,
-        title: file.title,
-        url: file.fileUrl,
-        extension: file.extension,
-        subject: file.subject,
-        course: file.course,
-        year: file.year,
-        createdAt: file.createdAt,
+    try {
+      // Fetch files from database
+      const dbFiles = await prisma.note.findMany({
+        where: {
+          year: year ? year : undefined,
+        },
+        orderBy: { createdAt: "desc" },
       });
-    });
 
-    res.json(organizedFiles);
+      // Fetch files from Cloudinary
+      const cloudinaryFiles = await cloudinary.api.resources({
+        type: "upload",
+        max_results: 500,
+        resource_type: "raw",
+      });
+
+      // Combine and organize the data
+      const combinedFiles = dbFiles.map(dbFile => {
+        const cloudinaryFile = cloudinaryFiles.resources.find(
+          cf => cf.secure_url === dbFile.fileUrl
+        );
+
+        return {
+          ...dbFile,
+          cloudinaryData: cloudinaryFile || {},
+          extension: dbFile.fileUrl.split('.').pop().toUpperCase(),
+        };
+      });
+
+      // Group files by type (notes/questions) and folder
+      const organizedFiles = {
+        notes: {},
+        questions: {}
+      };
+
+      combinedFiles.forEach(file => {
+        const section = file.type.toLowerCase().includes('question') ? 'questions' : 'notes';
+        const folder = file.folder || 'Uncategorized';
+
+        if (!organizedFiles[section][folder]) {
+          organizedFiles[section][folder] = [];
+        }
+
+        organizedFiles[section][folder].push({
+          id: file.id,
+          title: file.title,
+          url: file.fileUrl,
+          extension: file.extension,
+          subject: file.subject,
+          course: file.course,
+          year: file.year,
+          createdAt: file.createdAt,
+        });
+      });
+
+      res.json(organizedFiles);
+    } catch (error) {
+      console.error("Error fetching files:", error);
+      throw new Error("Failed to fetch files: " + error.message);
+    }
   })
 );
 
@@ -197,10 +202,10 @@ app.delete(
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).json({ 
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message 
+  res.status(500).json({
+    message: process.env.NODE_ENV === 'production'
+      ? 'Internal server error'
+      : err.message
   });
 });
 
@@ -210,9 +215,7 @@ app.use((req, res) => {
 });
 
 // Server startup
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 module.exports = app;

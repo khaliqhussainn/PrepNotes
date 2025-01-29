@@ -22,10 +22,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
-// Constants
-const API_URL = __DEV__
-  ? "http://192.168.1.37:5000/api" // Your local IP when testing
-  : "https://hamdard-docs.vercel.app/api"; // Your Vercel URL after deployment
+const API_URL = "https://hamdard-docs.vercel.app/api";
+
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
@@ -48,7 +46,6 @@ const YEAR_MAPPING = {
 };
 
 const ResourcesScreen = () => {
-  // State Management
   const [resources, setResources] = useState({ notes: {}, questions: {} });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -57,35 +54,70 @@ const ResourcesScreen = () => {
   const [error, setError] = useState(null);
   const [selectedYear, setSelectedYear] = useState(null);
 
-  // Fetch Resources
-  const fetchResources = async () => {
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    timeout: 15000,
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  const fetchResources = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`${API_URL}/files`, {
-        params: { year: YEAR_MAPPING[selectedYear] },
+
+      if (!selectedYear) {
+        setResources({ notes: {}, questions: {} });
+        return;
+      }
+
+      const response = await axiosInstance.get('/files', {
+        params: { year: YEAR_MAPPING[selectedYear] }
       });
+
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+
       setResources(response.data);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "Failed to fetch resources";
+      console.error('Resource fetch error:', err);
+
+      // Retry logic for network errors
+      if (err.code === 'ECONNABORTED' && retryCount < 3) {
+        console.log(`Retrying request (${retryCount + 1}/3)...`);
+        return fetchResources(retryCount + 1);
+      }
+
+      const errorMessage = err.response?.data?.message ||
+                          err.message ||
+                          'Failed to fetch resources. Please try again.';
+
       setError(errorMessage);
-      Alert.alert("Error", errorMessage);
-      console.error("Error fetching resources:", err);
+      Alert.alert(
+        "Error Fetching Resources",
+        errorMessage,
+        [
+          {
+            text: "Retry",
+            onPress: () => fetchResources()
+          },
+          { text: "OK" }
+        ]
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Auto-refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchResources();
     }, [selectedYear])
   );
 
-  // Handle File Opening
   const handleFileOpen = async (fileUrl) => {
     try {
       const supported = await Linking.canOpenURL(fileUrl);
@@ -101,13 +133,14 @@ const ResourcesScreen = () => {
       }
     } catch (error) {
       console.error("Error opening file:", error);
-      Alert.alert("Error", "Unable to open the file. Please try again later.", [
-        { text: "OK" },
-      ]);
+      Alert.alert(
+        "Error",
+        "Unable to open the file. Please try again later.",
+        [{ text: "OK" }]
+      );
     }
   };
 
-  // Form Input Handler
   const handleInputChange = (key, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -115,7 +148,6 @@ const ResourcesScreen = () => {
     }));
   };
 
-  // Validate Form
   const validateForm = () => {
     const requiredFields = ["folder", "type"];
     const missingFields = requiredFields.filter((field) => !formData[field]);
@@ -131,7 +163,6 @@ const ResourcesScreen = () => {
     return true;
   };
 
-  // File Upload Handler
   const handleFileUpload = async () => {
     if (!validateForm()) return;
 
@@ -153,14 +184,13 @@ const ResourcesScreen = () => {
         name: file.name,
       });
 
-      // Append form data
       Object.keys(formData).forEach((key) => {
         if (formData[key]) {
           form.append(key, formData[key]);
         }
       });
 
-      await axios.post(`${API_URL}/files`, form, {
+      await axiosInstance.post('/files', form, {
         headers: { "Content-Type": "multipart/form-data" },
         transformRequest: (data) => data,
         onUploadProgress: (progressEvent) => {
@@ -175,16 +205,14 @@ const ResourcesScreen = () => {
       setFormData(INITIAL_FORM_STATE);
       fetchResources();
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to upload file";
-      Alert.alert("Error", errorMessage);
       console.error("File upload error:", error);
+      const errorMessage = error.response?.data?.message || "Failed to upload file";
+      Alert.alert("Error", errorMessage);
     } finally {
       setUploading(false);
     }
   };
 
-  // Render File Item
   const renderFileItem = useCallback(
     ({ item: file }) => (
       <TouchableOpacity
@@ -196,11 +224,7 @@ const ResourcesScreen = () => {
         <View style={styles.fileContent}>
           <View style={styles.fileHeader}>
             <MaterialIcons
-              name={
-                file.extension?.toUpperCase() === "PDF"
-                  ? "picture-as-pdf"
-                  : "description"
-              }
+              name={file.extension?.toUpperCase() === "PDF" ? "picture-as-pdf" : "description"}
               size={24}
               color="#ffffff"
               style={styles.fileIcon}
@@ -231,7 +255,6 @@ const ResourcesScreen = () => {
     []
   );
 
-  // Render Input Field
   const renderInput = useCallback(
     ({ placeholder, value, key, required = false }) => (
       <View style={styles.inputContainer}>
@@ -260,6 +283,7 @@ const ResourcesScreen = () => {
       </LinearGradient>
     );
   }
+
   return (
     <LinearGradient
       colors={["#0070F0", "#62B1DD"]}
@@ -286,6 +310,12 @@ const ResourcesScreen = () => {
               />
             }
           >
+            {error && (
+              <View style={styles.errorContainer}>
+                <Text style={styles.errorText}>{error}</Text>
+              </View>
+            )}
+
             <View style={styles.yearFilterContainer}>
               {["1st Year", "2nd Year", "3rd Year"].map((year) => (
                 <TouchableOpacity
@@ -299,8 +329,7 @@ const ResourcesScreen = () => {
                   <Text
                     style={[
                       styles.yearFilterButtonText,
-                      selectedYear === year &&
-                        styles.yearFilterButtonTextSelected,
+                      selectedYear === year && styles.yearFilterButtonTextSelected,
                     ]}
                   >
                     {year}
@@ -349,10 +378,7 @@ const ResourcesScreen = () => {
                 })}
 
                 <TouchableOpacity
-                  style={[
-                    styles.uploadButton,
-                    uploading && styles.uploadButtonDisabled,
-                  ]}
+                  style={[styles.uploadButton, uploading && styles.uploadButtonDisabled]}
                   onPress={handleFileUpload}
                   disabled={uploading}
                 >
@@ -364,23 +390,12 @@ const ResourcesScreen = () => {
                   >
                     <View style={styles.uploadButtonContent}>
                       {uploading ? (
-                        <ActivityIndicator
-                          size="small"
-                          color="#ffffff"
-                          style={styles.uploadingSpinner}
-                        />
+                        <ActivityIndicator size="small" color="#ffffff" style={styles.uploadingSpinner} />
                       ) : (
-                        <MaterialIcons
-                          name="cloud-upload"
-                          size={24}
-                          color="#ffffff"
-                          style={styles.uploadIcon}
-                        />
+                        <MaterialIcons name="cloud-upload" size={24} color="#ffffff" style={styles.uploadIcon} />
                       )}
                       <Text style={styles.uploadButtonText}>
-                        {uploading
-                          ? "Uploading..."
-                          : "Select & Upload Document"}
+                        {uploading ? "Uploading..." : "Select & Upload Document"}
                       </Text>
                     </View>
                   </LinearGradient>
@@ -396,39 +411,28 @@ const ResourcesScreen = () => {
                     size={24}
                     color="#62B1DD"
                   />
-
                   <Text style={styles.sectionTitle}>
                     {section.charAt(0).toUpperCase() + section.slice(1)}
                   </Text>
-                  {Object.keys(folders).length === 0 ? (
-                    <View style={styles.emptyContainer}>
-                      <MaterialIcons
-                        name="folder-open"
-                        size={48}
-                        color="#94a3b8"
-                      />
-                      <Text style={styles.emptyText}>
-                        No {section} available
-                      </Text>
-                    </View>
-                  ) : (
-                    Object.entries(folders).map(([folderName, files]) => (
-                      <View key={folderName} style={styles.folderContainer}>
-                        <View style={styles.folderHeader}>
-                          <MaterialIcons
-                            name="folder"
-                            size={24}
-                            color="#ffffff"
-                          />
-                          <Text style={styles.folderTitle}>{folderName}</Text>
-                        </View>
-                        <View style={styles.filesGrid}>
-                          {files.map((file) => renderFileItem({ item: file }))}
-                        </View>
-                      </View>
-                    ))
-                  )}
                 </View>
+                {Object.keys(folders).length === 0 ? (
+                  <View style={styles.emptyContainer}>
+                    <MaterialIcons name="folder-open" size={48} color="#94a3b8" />
+                    <Text style={styles.emptyText}>No {section} available</Text>
+                  </View>
+                ) : (
+                  Object.entries(folders).map(([folderName, files]) => (
+                    <View key={folderName} style={styles.folderContainer}>
+                      <View style={styles.folderHeader}>
+                        <MaterialIcons name="folder" size={24} color="#ffffff" />
+                        <Text style={styles.folderTitle}>{folderName}</Text>
+                      </View>
+                      <View style={styles.filesGrid}>
+                        {files.map((file) => renderFileItem({ item: file }))}
+                      </View>
+                    </View>
+                  ))
+                )}
               </View>
             ))}
           </ScrollView>
@@ -439,6 +443,11 @@ const ResourcesScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   gradientBackground: {
     flex: 1,
   },
@@ -453,6 +462,19 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     paddingBottom: 24,
+  },
+  errorContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: '#FFE5E5',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#FF8888',
+  },
+  errorText: {
+    color: '#CC0000',
+    fontSize: 14,
+    textAlign: 'center',
   },
   yearFilterContainer: {
     flexDirection: "row",

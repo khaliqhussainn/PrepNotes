@@ -8,6 +8,11 @@
       "developmentClient": true,
       "distribution": "internal"
     },
+    "production": {
+      "env": {
+        "API_URL": "https://hamdard-docs.vercel.app/api"
+      }
+    },
     "preview": {
       "android": {
         "buildType": "apk"
@@ -24,7 +29,7 @@
     "preview4": {
       "distribution": "internal"
     },
-    "production": {
+    "production1": {
       "autoIncrement": true
     }
   },
