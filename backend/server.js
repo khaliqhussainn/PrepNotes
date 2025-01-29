@@ -3,11 +3,11 @@ const cors = require("cors");
 const multer = require("multer");
 const { PrismaClient } = require("@prisma/client");
 const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
 require("dotenv").config();
 
 const prisma = new PrismaClient();
 const app = express();
+const router = express.Router();
 
 app.use(cors());
 app.use(express.json());
@@ -18,59 +18,38 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = "/tmp"; // ✅ Vercel allows `/tmp` for file uploads
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-});
-
+// Multer memory storage (no need for disk storage on Vercel)
+const storage = multer.memoryStorage();
 const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } });
 
-app.get("/api/files", async (req, res) => {
+router.get("/files", async (req, res) => {
   try {
     const { year } = req.query;
     const dbFiles = await prisma.note.findMany({ where: { year } });
 
-    const cloudinaryFiles = await cloudinary.api.resources({
-      type: "upload",
-      max_results: 500,
-      resource_type: "raw",
-    });
-
-    const combinedFiles = dbFiles.map(dbFile => {
-      const cloudinaryFile = cloudinaryFiles.resources.find(
-        cf => cf.secure_url === dbFile.fileUrl
-      );
-      return {
-        ...dbFile,
-        cloudinaryData: cloudinaryFile || {},
-      };
-    });
-
-    res.json(combinedFiles);
+    res.json(dbFiles);
   } catch (error) {
     console.error("Error fetching files:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
-app.post("/api/files", upload.single("file"), async (req, res) => {
+router.post("/files", upload.single("file"), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
     const { title, year, subject, course, type, folder } = req.body;
-    console.log("Uploading file to Cloudinary:", req.file.path);
+    const fileBuffer = req.file.buffer.toString("base64");
 
-    const cloudinaryResult = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw",
-      folder: folder || "uploads",
-    });
+    console.log("Uploading file to Cloudinary...");
+    const cloudinaryResult = await cloudinary.uploader.upload(
+      `data:${req.file.mimetype};base64,${fileBuffer}`,
+      { resource_type: "raw", folder: folder || "uploads" }
+    );
 
-    console.log("Cloudinary upload result:", cloudinaryResult);
+    console.log("Cloudinary upload success:", cloudinaryResult.secure_url);
 
     const note = await prisma.note.create({
       data: {
@@ -91,5 +70,6 @@ app.post("/api/files", upload.single("file"), async (req, res) => {
   }
 });
 
-// ✅ Required for Vercel's serverless function
+// Vercel serverless export
+app.use("/api", router);
 module.exports = app;

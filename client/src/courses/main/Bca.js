@@ -23,7 +23,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
 // Constants
-const API_URL = "https://hamdarddoc.vercel.app/";
+const API_URL = "https://hamdard-docs.vercel.app/";
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
