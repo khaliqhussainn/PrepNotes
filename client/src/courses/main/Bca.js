@@ -25,7 +25,7 @@ import Navbar from "@/src/components/Navbar";
 // Constants
 const API_URL = __DEV__
   ? "http://192.168.1.37:5000/api" // Your local IP when testing
-  : "https://your-vercel-deployment-url.vercel.app/api"; // Your Vercel URL after deployment
+  : "https://hamdard-docs.vercel.app/api"; // Your Vercel URL after deployment
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
