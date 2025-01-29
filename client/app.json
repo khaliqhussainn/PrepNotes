@@ -37,7 +37,10 @@
       "bundleIdentifier": "com.HamdardDocs.app"
     },
     "android": {
-      "package": "com.HamdardDocs.app"
+      "package": "com.HamdardDocs.app",
+      "networkSecurityConfig": {
+        "cleartextTrafficPermitted": true
+      }
     },
     "owner": "khaliqhussainn"
   }

@@ -23,7 +23,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
 // Constants
-const API_URL = "https://hamdard-docs.vercel.app/";
+const API_URL = __DEV__
+  ? "http://192.168.1.37:5000/api" // Your local IP when testing
+  : "https://your-vercel-deployment-url.vercel.app/api"; // Your Vercel URL after deployment
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
@@ -354,7 +356,7 @@ const ResourcesScreen = () => {
                   onPress={handleFileUpload}
                   disabled={uploading}
                 >
-                 <LinearGradient
+                  <LinearGradient
                     colors={["#0070F0", "#62B1DD"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
@@ -376,7 +378,9 @@ const ResourcesScreen = () => {
                         />
                       )}
                       <Text style={styles.uploadButtonText}>
-                        {uploading ? "Uploading..." : "Select & Upload Document"}
+                        {uploading
+                          ? "Uploading..."
+                          : "Select & Upload Document"}
                       </Text>
                     </View>
                   </LinearGradient>
