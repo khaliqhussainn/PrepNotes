@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,21 +17,48 @@ import {
 } from "react-native";
 import axios from "axios";
 import * as DocumentPicker from "expo-document-picker";
-import { useFocusEffect } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
-const API_URL = __DEV__ 
-  ? "http://192.168.1.37:5000/api"  // Development
-  : "https://hamdarddocs.vercel.app/api";
+// Centralized configuration
+const CONFIG = {
+  PRODUCTION_API_URL: "hamdarddocs.vercel.app/api",
+  DEVELOPMENT_API_URL: "http://192.168.1.37:5000/api",
+  ACCEPTED_FILE_TYPES: [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ],
+  YEAR_MAPPING: {
+    "1st Year": "2023",
+    "2nd Year": "2024",
+    "3rd Year": "2025",
+  },
+  INITIAL_FORM_STATE: {
+    title: "",
+    year: "",
+    type: "",
+    subject: "",
+    course: "",
+    folder: "",
+  },
+};
 
-const ACCEPTED_FILE_TYPES = [
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-];
-// Update the axios instance
+const ResourcesScreen = () => {
+  const [resources, setResources] = useState({ notes: {}, questions: {} });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [formData, setFormData] = useState(CONFIG.INITIAL_FORM_STATE);
+  const [error, setError] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  // Dynamic API URL based on environment
+  const API_URL = __DEV__
+  ? CONFIG.DEVELOPMENT_API_URL
+  : CONFIG.PRODUCTION_API_URL;
+
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 15000,
@@ -41,93 +68,68 @@ const axiosInstance = axios.create({
   }
 });
 
-const INITIAL_FORM_STATE = {
-  title: "",
-  year: "",
-  type: "",
-  subject: "",
-  course: "",
-  folder: "",
-};
 
-const YEAR_MAPPING = {
-  "1st Year": "2023",
-  "2nd Year": "2024",
-  "3rd Year": "2025",
-};
-
-const ResourcesScreen = () => {
-  const [resources, setResources] = useState({ notes: {}, questions: {} });
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [formData, setFormData] = useState(INITIAL_FORM_STATE);
-  const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
-
-  const axiosInstance = axios.create({
-    baseURL: API_URL,
-    timeout: 15000,
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  });
-
-  const fetchResources = async (retryCount = 0) => {
+  const fetchResources = async () => {
     try {
       setLoading(true);
       setError(null);
-
+  
       if (!selectedYear) {
         setResources({ notes: {}, questions: {} });
         return;
       }
-
-      const response = await axiosInstance.get('/files', {
-        params: { year: YEAR_MAPPING[selectedYear] }
+  
+      console.log('Fetching resources:', {
+        apiUrl: API_URL,
+        year: CONFIG.YEAR_MAPPING[selectedYear]
       });
-
+  
+      const response = await axiosInstance.get('/files', {
+        params: { year: CONFIG.YEAR_MAPPING[selectedYear] }
+      });
+  
+      console.log('Received resources:', response.data);
+  
       if (!response.data) {
         throw new Error('No data received from server');
       }
-
+  
       setResources(response.data);
     } catch (err) {
-      console.error('Resource fetch error:', err);
-
-      // Retry logic for network errors
-      if (err.code === 'ECONNABORTED' && retryCount < 3) {
-        console.log(`Retrying request (${retryCount + 1}/3)...`);
-        return fetchResources(retryCount + 1);
-      }
-
-      const errorMessage = err.response?.data?.message ||
-                          err.message ||
-                          'Failed to fetch resources. Please try again.';
-
+      console.error('Detailed Resource Fetch Error:', {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        config: err.config
+      });
+  
+      const errorMessage =
+        err.response?.data?.message ||
+        err.message ||
+        'Failed to fetch resources. Check your connection.';
+  
       setError(errorMessage);
       Alert.alert(
         "Error Fetching Resources",
         errorMessage,
-        [
-          {
-            text: "Retry",
-            onPress: () => fetchResources()
-          },
-          { text: "OK" }
-        ]
+        [{ text: "OK" }]
       );
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
+  
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchResources();
-    }, [selectedYear])
-  );
+  useEffect(() => {
+    fetchResources();
+  }, [selectedYear]);
+
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     fetchResources();
+  //   }, [selectedYear])
+  // );
 
   const handleFileOpen = async (fileUrl) => {
     try {
