@@ -9,7 +9,8 @@
     "start": "npm start",
     "dev": "npm start",
     "build": "npx prisma generate",
-    "vercel-build": "npx prisma generate"
+    "postinstall": "npx prisma generate && prisma generate",
+    "vercel-build": "node node_modules/prisma/build.js && prisma generate && npx prisma generate && your-other-build-commands"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",

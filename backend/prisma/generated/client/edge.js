@@ -168,8 +168,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/client\"\n}\n\ndatasource db {\n  provider     = \"mysql\"\n  url          = env(\"DATABASE_URL\")\n  relationMode = \"prisma\"\n}\n\nmodel Note {\n  id        Int      @id @default(autoincrement())\n  title     String\n  fileUrl   String\n  year      String\n  subject   String\n  course    String\n  type      String\n  folder    String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([year])\n  @@index([type])\n}\n",
-  "inlineSchemaHash": "28674ca04368b624a8ca71ece2504e07233968690fcf55721406aa8420f109e5",
+  "inlineSchema": "datasource db {\n  provider = \"mysql\" // or your database provider\n  url      = env(\"DATABASE_URL\")\n}\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"./generated/client\"\n}\n\nmodel Note {\n  id        Int      @id @default(autoincrement())\n  title     String\n  fileUrl   String\n  year      String\n  subject   String\n  course    String\n  type      String\n  folder    String\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index([year])\n  @@index([type])\n}\n",
+  "inlineSchemaHash": "a88d4531d3b43bda796f91290cc6be7dfd1be70d6cf2b9091fceb1235fece313",
   "copyEngine": true
 }
 config.dirname = '/'
