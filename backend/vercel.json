@@ -1,6 +1,7 @@
 {
   "version": 2,
-  "buildCommand": "npm run build",
+  "buildCommand": "npm install && npx prisma generate && npm run build",
+  "installCommand": "npm install",
   "builds": [
     {
       "src": "server.js",
@@ -12,5 +13,8 @@
       "src": "/api/(.*)",
       "dest": "server.js"
     }
-  ]
+  ],
+  "env": {
+    "PRISMA_GENERATE_DATAPROXY": "true"
+  }
 }
