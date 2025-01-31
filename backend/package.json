@@ -6,11 +6,10 @@
     "node": "18.x"
   },
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "node prisma/generate.js",
-    "vercel-build": "node prisma/generate.js",
-    "prisma:generate": "node prisma/generate.js"
+    "start": "npm start",
+    "dev": "npm start",
+    "build": "npx prisma generate",
+    "vercel-build": "npx prisma generate"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
