@@ -22,13 +22,25 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
-const API_URL = "https://hamdard-docs.vercel.app/api";
+// const API_URL = "https://hamdard-docs.vercel.app/api";
+const API_URL = __DEV__ 
+  ? "http://192.168.1.37:5000/api"  // Development
+  : "https://hamdarddocs.vercel.app/api";
 
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
+// Update the axios instance
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  }
+});
 
 const INITIAL_FORM_STATE = {
   title: "",

@@ -1,11 +1,11 @@
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "rhel-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model Note {
@@ -19,4 +19,7 @@ model Note {
   folder    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([year])
+  @@index([type])
 }

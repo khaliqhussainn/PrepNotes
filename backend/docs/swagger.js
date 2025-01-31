@@ -13,6 +13,10 @@ const swaggerOptions = {
         url: `http://localhost:${process.env.PORT || 5000}`,
         description: "Development server",
       },
+      {
+        url: "https://hamdard-docs.vercel.app/api" || "https://hamdard-docs.vercel.app/api",
+        description: "Production server",
+      },
     ],
   },
   apis: ["./docs/*.yml"],
