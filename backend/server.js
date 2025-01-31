@@ -51,23 +51,24 @@ const asyncHandler = (fn) => (req, res, next) => {
     });
 };
 
-// Modified API endpoints to handle Expo specific requirements
 app.get("/api/files", asyncHandler(async (req, res) => {
   const { year } = req.query;
 
   try {
+    // Fetch database files with more robust querying
     const dbFiles = await prisma.note.findMany({
       where: {
-        year: year ? year : undefined,
+        ...(year && { year }),  // Only filter by year if provided
       },
       orderBy: { createdAt: 'desc' },
-      take: 100,
     });
 
+    // Fetch all Cloudinary files with higher limit
     const cloudinaryFiles = await cloudinary.api.resources({
       type: "upload",
-      max_results: 500,
+      max_results: 1000,  // Increased to get more files
       resource_type: "raw",
+      prefix: "uploads/",  // Optional: filter to specific folder if needed
     });
 
     const organizedFiles = {
@@ -76,10 +77,6 @@ app.get("/api/files", asyncHandler(async (req, res) => {
     };
 
     dbFiles.forEach(file => {
-      const cloudinaryFile = cloudinaryFiles.resources.find(
-        cf => cf.secure_url === file.fileUrl
-      );
-
       const section = file.type.toLowerCase().includes('question') ? 'questions' : 'notes';
       const folder = file.folder || 'Uncategorized';
 
@@ -87,23 +84,33 @@ app.get("/api/files", asyncHandler(async (req, res) => {
         organizedFiles[section][folder] = [];
       }
 
+      // More robust file matching and data extraction
       organizedFiles[section][folder].push({
         id: file.id,
-        title: file.title,
+        title: file.title || 'Untitled',
         url: file.fileUrl,
         extension: file.fileUrl.split('.').pop().toUpperCase(),
-        subject: file.subject,
-        course: file.course,
-        year: file.year,
+        subject: file.subject || '',
+        course: file.course || '',
+        year: file.year || '',
         createdAt: file.createdAt,
-        cloudinaryData: cloudinaryFile || {},
       });
     });
 
+    // Additional logging for debugging
+    console.log('Organized Files:', JSON.stringify(organizedFiles, null, 2));
+
     res.json(organizedFiles);
   } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
+    console.error('Comprehensive File Retrieval Error:', {
+      message: error.message,
+      stack: error.stack,
+      queryYear: year
+    });
+    res.status(500).json({ 
+      message: 'Failed to retrieve files', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 }));
 

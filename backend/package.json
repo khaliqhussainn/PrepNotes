@@ -6,12 +6,11 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "postinstall": "node -e \"try{require('./node_modules/.bin/prisma generate')}catch(e){}\"",
-    "build": "prisma generate && your-other-build-commands"
-
-
+    "build": "npx prisma generate && your-other-build-commands"
   },
   "dependencies": {
     "@prisma/client": "^6.3.0",
+    "prisma": "^6.3.0",
     "body-parser": "^1.20.3",
     "cloudinary": "^2.5.1",
     "cors": "^2.8.5",
