@@ -1,19 +1,14 @@
 const { PrismaClient } = require('@prisma/client');
 
-// PrismaClient is attached to the `global` object in development to prevent
-// exhausting your database connection limit.
-const globalForPrisma = global;
+let prisma;
 
-const prisma = globalForPrisma.prisma || new PrismaClient({
-  log: ['query', 'error', 'warn'],
-  errorFormat: 'minimal',
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL
-    }
+if (process.env.NODE_ENV === 'production') {
+  prisma = new PrismaClient();
+} else {
+  if (!global.prisma) {
+    global.prisma = new PrismaClient();
   }
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+  prisma = global.prisma;
+}
 
 module.exports = prisma;
