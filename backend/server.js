@@ -3,17 +3,14 @@ const cors = require("cors");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const fs = require("fs");
-const prisma = require('./db');
+const path = require("path");
+const os = require("os");
+const prisma = require('./db/db');
 require("dotenv").config();
 
 const app = express();
 
-// Modified CORS for Expo app
-app.use(cors({
-  origin: '*', // Allow all origins for development
-  methods: ['GET', 'POST', 'DELETE', 'UPDATE', 'PUT', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -24,14 +21,15 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Storage configuration
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadDir = "./uploads";
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    const uploadDir = path.join(os.tmpdir(), 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')}`);
+  },
 });
 
 const upload = multer({
@@ -39,17 +37,10 @@ const upload = multer({
   limits: { fileSize: 100 * 1024 * 1024 }
 });
 
-// Error handling middleware
 const asyncHandler = (fn) => (req, res, next) => {
-  Promise.resolve(fn(req, res, next))
-    .catch((error) => {
-      console.error('Error:', error);
-      res.status(500).json({
-        message: 'An error occurred',
-        error: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
-    });
+  Promise.resolve(fn(req, res, next)).catch(next);
 };
+
 
 app.get("/api/files", asyncHandler(async (req, res) => {
   const { year } = req.query;

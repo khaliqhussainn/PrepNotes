@@ -24,7 +24,7 @@ import Navbar from "@/src/components/Navbar";
 // Centralized configuration
 const CONFIG = {
   PRODUCTION_API_URL: "hamdarddocs.vercel.app/api",
-  DEVELOPMENT_API_URL: "http://192.168.1.37:5000/api",
+  // DEVELOPMENT_API_URL: "http://192.168.1.37:5000/api",
   ACCEPTED_FILE_TYPES: [
     "application/pdf",
     "application/msword",
@@ -55,9 +55,7 @@ const ResourcesScreen = () => {
   const [selectedYear, setSelectedYear] = useState(null);
 
   // Dynamic API URL based on environment
-  const API_URL = __DEV__
-  ? CONFIG.DEVELOPMENT_API_URL
-  : CONFIG.PRODUCTION_API_URL;
+  const API_URL= CONFIG.PRODUCTION_API_URL;
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
