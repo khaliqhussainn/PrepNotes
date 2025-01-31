@@ -22,7 +22,6 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
 
-// const API_URL = "https://hamdard-docs.vercel.app/api";
 const API_URL = __DEV__ 
   ? "http://192.168.1.37:5000/api"  // Development
   : "https://hamdarddocs.vercel.app/api";
@@ -664,7 +663,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   fileContent: {
-    padding: 16,
+    padding: 15,
   },
   fileHeader: {
     flexDirection: "row",
