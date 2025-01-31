@@ -1,25 +1,3 @@
-const express = require("express");
-const cors = require("cors");
-const multer = require("multer");
-const { PrismaClient } = require("@prisma/client");
-const cloudinary = require("cloudinary").v2;
-const fs = require("fs");
-require("dotenv").config();
-// server/db.js
-const { PrismaClient } = require('@prisma/client');
-
-const globalForPrisma = global;
-
-const prisma = globalForPrisma.prisma ?? new PrismaClient({
-  log: ['query', 'error', 'warn'],
-  errorFormat: 'minimal',
-  connectionTimeout: 20000,
-});
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
-
-module.exports = prisma;
-
 // server/index.js
 const express = require("express");
 const cors = require("cors");
