@@ -1,24 +1,29 @@
-datasource db {
-  provider = "mysql" // or your database provider
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider = "prisma-client-js"
-  output   = "./generated/client"
+  output   = "../node_modules/.prisma/client"
 }
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+  relationMode = "foreignKeys"
+}
+
 model Note {
   id        Int      @id @default(autoincrement())
-  title     String
-  fileUrl   String
-  year      String
-  subject   String
-  course    String
-  type      String
-  folder    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  title     String   @db.VarChar(255)
+  fileUrl   String   @db.Text
+  year      String   @db.VarChar(4)
+  subject   String   @db.VarChar(100)
+  course    String   @db.VarChar(100)
+  type      String   @db.VarChar(50)
+  folder    String   @db.VarChar(255)
+  createdAt DateTime @default(now()) @db.Timestamp(6)
+  updatedAt DateTime @updatedAt @db.Timestamp(6)
 
-  @@index([year])
-  @@index([type])
+  @@index([year, subject])
+  @@index([type, course])
+  @@fulltext([title])
+
+  @@map("notes")
 }

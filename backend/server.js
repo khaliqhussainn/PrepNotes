@@ -41,25 +41,22 @@ const asyncHandler = (fn) => (req, res, next) => {
   Promise.resolve(fn(req, res, next)).catch(next);
 };
 
-
 app.get("/api/files", asyncHandler(async (req, res) => {
   const { year } = req.query;
 
   try {
-    // Fetch database files with more robust querying
     const dbFiles = await prisma.note.findMany({
       where: {
-        ...(year && { year }),  // Only filter by year if provided
+        ...(year && { year }),
       },
       orderBy: { createdAt: 'desc' },
     });
 
-    // Fetch all Cloudinary files with higher limit
     const cloudinaryFiles = await cloudinary.api.resources({
       type: "upload",
-      max_results: 1000,  // Increased to get more files
+      max_results: 1000,
       resource_type: "raw",
-      prefix: "uploads/",  // Optional: filter to specific folder if needed
+      prefix: "uploads/",
     });
 
     const organizedFiles = {
@@ -75,7 +72,6 @@ app.get("/api/files", asyncHandler(async (req, res) => {
         organizedFiles[section][folder] = [];
       }
 
-      // More robust file matching and data extraction
       organizedFiles[section][folder].push({
         id: file.id,
         title: file.title || 'Untitled',
@@ -88,7 +84,6 @@ app.get("/api/files", asyncHandler(async (req, res) => {
       });
     });
 
-    // Additional logging for debugging
     console.log('Organized Files:', JSON.stringify(organizedFiles, null, 2));
 
     res.json(organizedFiles);
@@ -105,7 +100,6 @@ app.get("/api/files", asyncHandler(async (req, res) => {
   }
 }));
 
-// Modified file upload to handle Expo file structure
 app.post("/api/files", upload.single("file"), asyncHandler(async (req, res) => {
   if (!req.file) {
     throw new Error("No file uploaded");

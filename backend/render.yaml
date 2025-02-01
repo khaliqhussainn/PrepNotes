@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: backend
+    env: node
+    buildCommand: npm run build # Runs prisma generate and prisma migrate deploy
+    startCommand: node server.js
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: NODE_ENV
+        value: production
