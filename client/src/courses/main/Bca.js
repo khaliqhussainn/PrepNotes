@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -21,6 +21,8 @@ import { useFocusEffect } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "@/src/components/Navbar";
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const API_URL = "https://hamdarddocs-backend.onrender.com/api";
 
@@ -52,7 +54,7 @@ const ResourcesScreen = () => {
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("1st Year"); // Default to "1st Year"
 
   const axiosInstance = axios.create({
     baseURL: API_URL,
@@ -118,6 +120,10 @@ const ResourcesScreen = () => {
     }, [selectedYear])
   );
 
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
   const handleFileOpen = async (fileUrl) => {
     try {
       const supported = await Linking.canOpenURL(fileUrl);
@@ -140,6 +146,36 @@ const ResourcesScreen = () => {
       );
     }
   };
+
+  // const handleFileDownload = async (fileUrl, fileName) => {
+  //   try {
+  //     const fileUri = FileSystem.documentDirectory + fileName;
+  //     const downloadResumable = FileSystem.createDownloadResumable(
+  //       fileUrl,
+  //       fileUri,
+  //       {},
+  //       (downloadProgress) => {
+  //         const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+  //         console.log(`Download progress: ${progress * 100}%`);
+  //       }
+  //     );
+
+  //     const { uri } = await downloadResumable.downloadAsync();
+  //     console.log('Finished downloading to ', uri);
+  //     Alert.alert(
+  //       "Download Complete",
+  //       "File downloaded successfully",
+  //       [{ text: "OK", onPress: () => Sharing.shareAsync(uri) }]
+  //     );
+  //   } catch (error) {
+  //     console.error("Error downloading file:", error);
+  //     Alert.alert(
+  //       "Error",
+  //       "Unable to download the file. Please try again later.",
+  //       [{ text: "OK" }]
+  //     );
+  //   }
+  // };
 
   const handleInputChange = (key, value) => {
     setFormData((prev) => ({
@@ -213,28 +249,105 @@ const ResourcesScreen = () => {
     }
   };
 
+  // download
+
+  const [downloadProgress, setDownloadProgress] = useState({});
+
+  const handleFileDownload = async (fileUrl, fileName) => {
+    try {
+      const fileUri = FileSystem.documentDirectory + fileName;
+      
+      // Initialize progress for this file
+      setDownloadProgress(prev => ({
+        ...prev,
+        [fileName]: 0
+      }));
+
+      const downloadResumable = FileSystem.createDownloadResumable(
+        fileUrl,
+        fileUri,
+        {},
+        (downloadProgress) => {
+          const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+          setDownloadProgress(prev => ({
+            ...prev,
+            [fileName]: progress
+          }));
+        }
+      );
+
+      const { uri } = await downloadResumable.downloadAsync();
+      
+      // Clear progress after successful download
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[fileName];
+        return newProgress;
+      });
+
+      Alert.alert(
+        "Download Complete",
+        "Would you like to share or open this file?",
+        [
+          { 
+            text: "Share",
+            onPress: () => Sharing.shareAsync(uri)
+          },
+          {
+            text: "Open",
+            onPress: () => Linking.openURL(uri)
+          },
+          { text: "Close" }
+        ]
+      );
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      // Clear progress on error
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[fileName];
+        return newProgress;
+      });
+      Alert.alert(
+        "Error",
+        "Unable to download the file. Please try again later.",
+        [{ text: "OK" }]
+      );
+    }
+  };
+
+
+
+
+
+
   const renderFileItem = useCallback(
     ({ item: file }) => (
-      <TouchableOpacity
-        key={file.id}
-        style={styles.fileItem}
-        onPress={() => handleFileOpen(file.url)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.fileContent}>
-          <View style={styles.fileHeader}>
-            <MaterialIcons
-              name={file.extension?.toUpperCase() === "PDF" ? "picture-as-pdf" : "description"}
-              size={24}
-              color="#ffffff"
-              style={styles.fileIcon}
-            />
-            <Text style={styles.fileName} numberOfLines={1}>
-              {file.title || "Untitled"}
-            </Text>
-            <View style={styles.fileTypeBadge}>
-              <Text style={styles.fileType}>{file.extension}</Text>
-            </View>
+      <View key={file.id} style={styles.fileItem}>
+        <LinearGradient
+          colors={['#ffffff', '#f8f9fa']}
+          style={styles.fileContent}
+        >
+          <View style={styles.fileHeaderGradient}>
+            <LinearGradient
+              colors={['#0070F0', '#62B1DD']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.fileHeader}
+            >
+              <MaterialIcons
+                name={file.extension?.toUpperCase() === "PDF" ? "picture-as-pdf" : "description"}
+                size={24}
+                color="#ffffff"
+                style={styles.fileIcon}
+              />
+              <Text style={styles.fileName} numberOfLines={1}>
+                {file.title || "Untitled"}
+              </Text>
+              <View style={styles.fileTypeBadge}>
+                <Text style={styles.fileType}>{file.extension}</Text>
+              </View>
+            </LinearGradient>
           </View>
 
           <View style={styles.fileDetails}>
@@ -249,10 +362,54 @@ const ResourcesScreen = () => {
               </View>
             )}
           </View>
-        </View>
-      </TouchableOpacity>
+
+          <View style={styles.fileActions}>
+            <TouchableOpacity
+              style={styles.fileActionButton}
+              onPress={() => handleFileOpen(file.url)}
+            >
+              <LinearGradient
+                colors={['#0070F0', '#62B1DD']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.actionButtonGradient}
+              >
+                <MaterialIcons name="visibility" size={20} color="#ffffff" />
+                <Text style={styles.fileActionText}>View</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={styles.fileActionButton}
+              onPress={() => handleFileDownload(file.url, file.title || "Untitled")}
+              disabled={downloadProgress[file.title] !== undefined}
+            >
+              <LinearGradient
+                colors={['#0070F0', '#62B1DD']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.actionButtonGradient}
+              >
+                {downloadProgress[file.title] !== undefined ? (
+                  <>
+                    <ActivityIndicator size="small" color="#ffffff" />
+                    <Text style={styles.fileActionText}>
+                      {Math.round(downloadProgress[file.title] * 100)}%
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <MaterialIcons name="file-download" size={20} color="#ffffff" />
+                    <Text style={styles.fileActionText}>Download</Text>
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </View>
     ),
-    []
+    [downloadProgress]
   );
 
   const renderInput = useCallback(
@@ -590,7 +747,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 8,
     elevation: 8,
-    // flexDirection: "row",
   },
   sectionHeaderContainer: {
     flexDirection: "column",
@@ -604,11 +760,8 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   folderContainer: {
-    backgroundColor: "#f8f9fa",
     borderRadius: 16,
-    padding: 20,
     marginBottom: 16,
-    borderWidth: 1,
     borderColor: "#e9ecef",
     shadowColor: "#000",
     shadowOffset: {
@@ -637,48 +790,52 @@ const styles = StyleSheet.create({
     gap: 16,
   },
   fileItem: {
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e9ecef",
-    overflow: "hidden",
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 16,
+    elevation: 4,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    elevation: 3,
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
+  
   fileContent: {
-    padding: 16,
+    borderRadius: 16,
   },
+
+  fileHeaderGradient: {
+    overflow: 'hidden',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+
   fileHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 12,
-    backgroundColor: "#62B1DD",
-    padding: 12,
-    borderRadius: 8,
-    marginHorizontal: -16,
-    marginTop: -16,
+    padding: 16,
   },
-  fileIcon: {
-    marginRight: 8,
-  },
+
   fileName: {
     fontSize: 16,
-    fontWeight: "600",
+    fontWeight: "700",
     color: "#ffffff",
     flex: 1,
     marginRight: 8,
   },
+
+  fileIcon: {
+    marginRight: 8,
+  },
+ 
   fileTypeBadge: {
     backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   fileType: {
     fontSize: 12,
@@ -689,20 +846,58 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    marginTop: 12,
+    padding: 16,
+    backgroundColor: '#ffffff',
   },
+
   badge: {
-    backgroundColor: "#f0f4f8",
-    paddingHorizontal: 10,
+    backgroundColor: "#f0f9ff",
+    paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: "#e9ecef",
+    borderColor: "#62B1DD",
   },
   badgeText: {
-    fontSize: 12,
-    color: "#62B1DD",
-    fontWeight: "500",
+    fontSize: 13,
+    color: "#0070F0",
+    fontWeight: "600",
+  },
+
+  fileActions: {
+    flexDirection: "row",
+    padding: 16,
+    gap: 12,
+    backgroundColor: '#ffffff',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+
+  fileActionButton: {
+    flex: 1,
+    overflow: 'hidden',
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  actionButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    gap: 8,
+  },
+
+  fileActionText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "600",
   },
   emptyContainer: {
     backgroundColor: "#f8f9fa",
