@@ -15,24 +15,29 @@ import * as ImagePicker from "expo-image-picker";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTheme } from "../context/ThemeContext";
 
 // Updated color scheme
-const PRIMARY_COLOR = "#62B1DD";
+const PRIMARY_COLOR = "#0070F0";
 const SECONDARY_COLOR = "#4B8FB3";
 const ACCENT_COLOR = "#3A7DA1";
-const BACKGROUND_COLOR = "#FFFFFF";
+const BACKGROUND_COLOR_LIGHT = "#FFFFFF";
+const BACKGROUND_COLOR_DARK = "#000000";
 const TEXT_DARK = "#2C3E50";
 const TEXT_LIGHT = "#607D8B";
+const TEXT_COLOR_DARK = "#FFFFFF";
+const TEXT_COLOR_LIGHT = "#000000";
 
 const Profile = () => {
   const navigation = useNavigation();
   const auth = getAuth();
+  const { isDarkMode } = useTheme();
   const [user, setUser] = useState(null);
   const [name, setName] = useState("");
   const [course, setCourse] = useState("");
   const [image, setImage] = useState(null);
 
-  const gradientColors = ["#0070F0", "#62B1DD"];
+  const gradientColors = isDarkMode ? ["#000000", "#000000"] : ["#0070F0", "#62B1DD"];
   const gradientLocations = [0, 0.5, 1];
   const gradientStart = { x: 0, y: 0 };
   const gradientEnd = { x: 1, y: 1 };
@@ -94,55 +99,55 @@ const Profile = () => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView 
-        contentContainerStyle={styles.scrollViewContent} 
+    <SafeAreaView style={styles(isDarkMode).safeArea}>
+      <ScrollView
+        contentContainerStyle={styles(isDarkMode).scrollViewContent}
         showsVerticalScrollIndicator={false}
-        style={styles.container}
+        style={styles(isDarkMode).container}
       >
         <LinearGradient
           colors={gradientColors}
           locations={gradientLocations}
           start={gradientStart}
           end={gradientEnd}
-          style={styles.header}
+          style={styles(isDarkMode).header}
         >
-          <Text style={styles.title}>Profile</Text>
-          <Text style={styles.subtitle}>Manage your profile information</Text>
+          <Text style={styles(isDarkMode).title}>Profile</Text>
+          <Text style={styles(isDarkMode).subtitle}>Manage your profile information</Text>
         </LinearGradient>
 
-        <View style={styles.contentContainer}>
-          <View style={styles.card}>
-            <View style={styles.userInfo}>
-              <Pressable onPress={pickImage} style={styles.imageContainer}>
+        <View style={styles(isDarkMode).contentContainer}>
+          <View style={styles(isDarkMode).card}>
+            <View style={styles(isDarkMode).userInfo}>
+              <Pressable onPress={pickImage} style={styles(isDarkMode).imageContainer}>
                 <Image
                   source={{ uri: image ? image : user?.imageUrl }}
-                  style={styles.profileImage}
+                  style={styles(isDarkMode).profileImage}
                   alt="profile"
                 />
-                <View style={styles.imageOverlay}>
-                  <Ionicons name="camera" size={24} color={BACKGROUND_COLOR} />
+                <View style={styles(isDarkMode).imageOverlay}>
+                  <Ionicons name="camera" size={24} color={isDarkMode ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT} />
                 </View>
               </Pressable>
-              <View style={styles.userDetails}>
-                <Text style={styles.userName}>{user?.name}</Text>
-                <Text style={styles.userEmail}>{user?.email}</Text>
+              <View style={styles(isDarkMode).userDetails}>
+                <Text style={styles(isDarkMode).userName}>{user?.name}</Text>
+                <Text style={styles(isDarkMode).userEmail}>{user?.email}</Text>
               </View>
             </View>
 
-            <View style={styles.inputContainer}>
-              <Text style={styles.inputLabel}>Full Name</Text>
+            <View style={styles(isDarkMode).inputContainer}>
+              <Text style={styles(isDarkMode).inputLabel}>Full Name</Text>
               <TextInput
-                style={styles.input}
+                style={styles(isDarkMode).input}
                 placeholder="Enter your name"
                 value={name}
                 onChangeText={setName}
                 placeholderTextColor={TEXT_LIGHT}
               />
 
-              <Text style={styles.inputLabel}>Course</Text>
+              <Text style={styles(isDarkMode).inputLabel}>Course</Text>
               <TextInput
-                style={styles.input}
+                style={styles(isDarkMode).input}
                 placeholder="Enter your course"
                 value={course}
                 onChangeText={setCourse}
@@ -151,39 +156,39 @@ const Profile = () => {
 
               <Pressable
                 style={({ pressed }) => [
-                  styles.saveButton,
-                  pressed && styles.buttonPressed,
+                  styles(isDarkMode).saveButton,
+                  pressed && styles(isDarkMode).buttonPressed,
                 ]}
                 onPress={handleUpdateProfile}
               >
                 <LinearGradient
-                  colors={gradientColors}
-                  start={gradientStart}
+              colors={isDarkMode ? ["#0070F0", "#0070F0"] : ["#0070F0", "#62B1DD"]}
+              start={gradientStart}
                   end={gradientEnd}
-                  style={styles.gradientButton}
+                  style={styles(isDarkMode).gradientButton}
                 >
-                  <Text style={styles.saveButtonText}>Save Changes</Text>
+                  <Text style={styles(isDarkMode).saveButtonText}>Save Changes</Text>
                 </LinearGradient>
               </Pressable>
             </View>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Quick Actions</Text>
-            <View style={styles.optionsContainer}>
+          <View style={styles(isDarkMode).card}>
+            <Text style={styles(isDarkMode).sectionTitle}>Quick Actions</Text>
+            <View style={styles(isDarkMode).optionsContainer}>
               <Pressable
                 style={({ pressed }) => [
-                  styles.option,
-                  pressed && styles.optionPressed,
+                  styles(isDarkMode).option,
+                  pressed && styles(isDarkMode).optionPressed,
                 ]}
                 onPress={() => navigation.navigate("Help")}
               >
-                <View style={[styles.optionIcon, { backgroundColor: PRIMARY_COLOR }]}>
-                  <Ionicons name="help-circle" size={24} color={BACKGROUND_COLOR} />
+                <View style={[styles(isDarkMode).optionIcon, { backgroundColor: PRIMARY_COLOR }]}>
+                  <Ionicons name="help-circle" size={24} color={isDarkMode ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT} />
                 </View>
-                <View style={styles.optionContent}>
-                  <Text style={styles.optionTitle}>Help & Support</Text>
-                  <Text style={styles.optionDescription}>
+                <View style={styles(isDarkMode).optionContent}>
+                  <Text style={styles(isDarkMode).optionTitle}>Help & Support</Text>
+                  <Text style={styles(isDarkMode).optionDescription}>
                     Get assistance and answers to your questions
                   </Text>
                 </View>
@@ -192,19 +197,19 @@ const Profile = () => {
 
               <Pressable
                 style={({ pressed }) => [
-                  styles.option,
-                  pressed && styles.optionPressed,
+                  styles(isDarkMode).option,
+                  pressed && styles(isDarkMode).optionPressed,
                 ]}
                 onPress={handleLogout}
               >
-                <View style={[styles.optionIcon, { backgroundColor: "#FF5757" }]}>
-                  <Ionicons name="log-out" size={24} color={BACKGROUND_COLOR} />
+                <View style={[styles(isDarkMode).optionIcon, { backgroundColor: "#FF5757" }]}>
+                  <Ionicons name="log-out" size={24} color={isDarkMode ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT} />
                 </View>
-                <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, styles.logoutText]}>
+                <View style={styles(isDarkMode).optionContent}>
+                  <Text style={[styles(isDarkMode).optionTitle, styles(isDarkMode).logoutText]}>
                     Logout
                   </Text>
-                  <Text style={styles.optionDescription}>
+                  <Text style={styles(isDarkMode).optionDescription}>
                     Sign out from your account
                   </Text>
                 </View>
@@ -218,14 +223,14 @@ const Profile = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
   },
   container: {
     flex: 1,
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -245,20 +250,20 @@ const styles = StyleSheet.create({
     flex: 1,
     marginTop: -20,
     paddingHorizontal: 16,
-    paddingBottom: 24,
+    paddingBottom: 64,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.9)",
+    color: isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(0, 0, 0, 0.6)",
   },
   card: {
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     borderRadius: 20,
     padding: 24,
     marginBottom: 16,
@@ -268,7 +273,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     borderWidth: 1,
-    borderColor: "#F0F0F0",
+    borderColor: isDark ? "#333333" : "#F0F0F0",
   },
   userInfo: {
     alignItems: "center",
@@ -304,12 +309,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: TEXT_DARK,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_DARK,
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: TEXT_LIGHT,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_LIGHT,
   },
   inputContainer: {
     gap: 12,
@@ -317,17 +322,17 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: TEXT_DARK,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_DARK,
     marginBottom: -4,
   },
   input: {
-    backgroundColor: "#F7FAFC",
+    backgroundColor: isDark ? "#333333" : "#F7FAFC",
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: TEXT_DARK,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_DARK,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: isDark ? "#444444" : "#E2E8F0",
   },
   saveButton: {
     borderRadius: 12,
@@ -343,14 +348,14 @@ const styles = StyleSheet.create({
     transform: [{ scale: 0.98 }],
   },
   saveButtonText: {
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     fontSize: 16,
     fontWeight: "600",
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: TEXT_DARK,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_DARK,
     marginBottom: 16,
   },
   optionsContainer: {
@@ -360,13 +365,13 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: isDark ? "#444444" : "#E2E8F0",
   },
   optionPressed: {
-    backgroundColor: "#F7FAFC",
+    backgroundColor: isDark ? "#444444" : "#F7FAFC",
     transform: [{ scale: 0.98 }],
   },
   optionIcon: {
@@ -383,12 +388,12 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: TEXT_DARK,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_DARK,
     marginBottom: 2,
   },
   optionDescription: {
     fontSize: 14,
-    color: TEXT_LIGHT,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_LIGHT,
   },
   logoutText: {
     color: "#FF5757",

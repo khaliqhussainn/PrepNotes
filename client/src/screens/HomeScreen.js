@@ -17,11 +17,14 @@ import { getAuth } from "firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "../components/Navbar";
+import { useTheme } from "../context/ThemeContext";
+
 const { width, height } = Dimensions.get("window");
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const auth = getAuth();
+  const { isDarkMode } = useTheme();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const fadeAnim = useState(new Animated.Value(1))[0];
@@ -81,30 +84,30 @@ const HomeScreen = () => {
   const renderCourse = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
-        styles.courseContainer,
+        styles(isDarkMode).courseContainer,
         { transform: [{ scale: pressed ? 0.95 : 1 }] },
       ]}
       onPress={() => navigation.navigate(item.link)}
     >
-      <View style={styles.courseIconContainer}>
+      <View style={styles(isDarkMode).courseIconContainer}>
         <Ionicons name={item.icon} size={40} color="#fff" />
       </View>
-      <Text style={styles.courseName}>{item.name}</Text>
+      <Text style={styles(isDarkMode).courseName}>{item.name}</Text>
     </Pressable>
   );
 
   return (
-    <View style={styles.container}>
+    <View style={styles(isDarkMode).container}>
       <LinearGradient
-        colors={['#ffffff', '#B2E3FF', '#62B1DD']}
+        colors={isDarkMode ? ['#000000', '#000'] : ['#ffffff', '#B2E3FF', '#62B1DD']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         locations={[0, 0.6, 1]}
-        style={styles.backgroundGradient}
+        style={styles(isDarkMode).backgroundGradient}
       />
-      <View style={styles.texturePattern} />
+      <View style={styles(isDarkMode).texturePattern} />
 
-      <SafeAreaView style={styles.content}>
+      <SafeAreaView style={styles(isDarkMode).content}>
         <Navbar />
 
         {isSidebarOpen && (
@@ -116,15 +119,23 @@ const HomeScreen = () => {
           />
         )}
 
-        <Animated.View style={[styles.mainContent, { opacity: fadeAnim }]}>
+        <Animated.View style={[styles(isDarkMode).mainContent, { opacity: fadeAnim }]}>
           <FlatList
             data={courses}
             renderItem={renderCourse}
             keyExtractor={(item) => item.id.toString()}
-            contentContainerStyle={styles.coursesList}
+            contentContainerStyle={styles(isDarkMode).coursesList}
             showsVerticalScrollIndicator={false}
           />
         </Animated.View>
+
+        {/* Add the button here */}
+        <Pressable
+          style={styles(isDarkMode).aiHelperButton}
+          onPress={() => navigation.navigate("AIStudentHelper")}
+        >
+          <Ionicons name="help-circle-outline" size={30} color="#fff" />
+        </Pressable>
       </SafeAreaView>
     </View>
   );
@@ -132,7 +143,7 @@ const HomeScreen = () => {
 
 export default HomeScreen;
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   container: {
     flex: 1,
   },
@@ -152,11 +163,11 @@ const styles = StyleSheet.create({
     opacity: 0.12,
     backgroundImage: Platform.select({
       web: `
-        linear-gradient(135deg, transparent 0%, transparent 45%, 
-        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 45%, 
-        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 55%, 
+        linear-gradient(135deg, transparent 0%, transparent 45%,
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 45%,
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 55%,
         transparent 55%, transparent 100%),
-        linear-gradient(-135deg, transparent 0%, transparent 45%, 
+        linear-gradient(-135deg, transparent 0%, transparent 45%,
         ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 45%,
         ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 55%,
         transparent 55%, transparent 100%)
@@ -179,32 +190,32 @@ const styles = StyleSheet.create({
     gap: 16,
     paddingBottom: 20,
   },
- courseContainer: {
-  overflow: 'hidden',
-  borderRadius: 16,
-  padding: 24,
-  marginBottom: 16,
-  width: width - 32,
-  alignItems: "center",
-  justifyContent: "center",
-  backgroundColor: 'rgba(255, 255, 255, 0.85)', // Slightly more opaque for better readability
-  borderWidth: 1,
-  borderColor: 'rgba(98, 177, 221, 0.4)', // Lighter border color
-  ...Platform.select({
-    ios: {
-      shadowColor: "#62B1DD",
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15, // Reduced opacity for a softer shadow
-      shadowRadius: 8,
-    },
-    android: {
-      elevation: 3,
-    },
-    web: {
-      boxShadow: '0 4px 8px rgba(98, 177, 221, 0.15)', // Softer shadow for web
-    },
-  }),
-},
+  courseContainer: {
+    overflow: 'hidden',
+    borderRadius: 16,
+    padding: 24,
+    marginBottom: 16,
+    width: width - 32,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.85)', // Slightly more opaque for better readability
+    borderWidth: 1,
+    borderColor: isDark ? 'rgba(98, 177, 221, 0.4)' : 'rgba(98, 177, 221, 0.4)', // Lighter border color
+    ...Platform.select({
+      ios: {
+        shadowColor: isDark ? "#000000" : "#62B1DD",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: isDark ? 0.2 : 0.15, // Reduced opacity for a softer shadow
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 3,
+      },
+      web: {
+        boxShadow: isDark ? '0 4px 8px rgba(0, 0, 0, 0.2)' : '0 4px 8px rgba(98, 177, 221, 0.15)', // Softer shadow for web
+      },
+    }),
+  },
   courseIconContainer: {
     width: 80,
     height: 80,
@@ -214,27 +225,53 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 2,
     backgroundColor: "#0070F0",
-    borderColor: "rgba(98, 177, 221, 0.2)",
+    borderColor: isDark ? 'rgba(98, 177, 221, 0.2)' : 'rgba(98, 177, 221, 0.2)',
     ...Platform.select({
       ios: {
-        shadowColor: "#62B1DD",
+        shadowColor: isDark ? "#000000" : "#62B1DD",
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
+        shadowOpacity: isDark ? 0.25 : 0.25,
         shadowRadius: 4,
       },
       android: {
         elevation: 2,
       },
       web: {
-        boxShadow: '0 2px 4px rgba(98, 177, 221, 0.25)',
+        boxShadow: isDark ? '0 2px 4px rgba(0, 0, 0, 0.25)' : '0 2px 4px rgba(98, 177, 221, 0.25)',
       },
     }),
   },
   courseName: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#2F2F2F",
+    color: isDark ? "#FFFFFF" : "#2F2F2F",
     textAlign: "center",
     letterSpacing: 0.5,
+  },
+  aiHelperButton: {
+    position: 'absolute',
+    bottom: 120,
+    zIndex: 2,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#0070F0',
+    alignItems: 'center',
+    justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: isDark ? "#000000" : "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 5,
+      },
+      web: {
+        boxShadow: isDark ? '0 2px 4px rgba(0, 0, 0, 0.25)' : '0 2px 4px rgba(0, 0, 0, 0.25)',
+      },
+    }),
   },
 });

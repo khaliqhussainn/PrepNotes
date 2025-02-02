@@ -1,18 +1,13 @@
-import React from "react";
+import React, { useContext } from "react";
 import { View, Text, Switch, StyleSheet, Pressable } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
-
-// Updated color scheme
-const PRIMARY_COLOR = "#0070F0";
-const SECONDARY_COLOR = "#40c9ff";
-const ACCENT_COLOR = "#bf40ff";
-const TEXT_COLOR = "#ffffff";
-const LIGHT_TEXT = "#e1e5ee";
+import { ThemeContext } from "../context/ThemeContext";
 
 const Settings = () => {
   const navigation = useNavigation();
+  const { isDarkMode, toggleTheme } = useContext(ThemeContext);
   const [notificationsEnabled, setNotificationsEnabled] = React.useState(true);
 
   const toggleNotifications = () => {
@@ -21,7 +16,7 @@ const Settings = () => {
 
   return (
     <LinearGradient
-      colors={["#0070F0", "#62B1DD"]}
+      colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -33,7 +28,7 @@ const Settings = () => {
       <View style={styles.content}>
         <View style={styles.section}>
           <LinearGradient
-            colors={["#0070F0", "#62B1DD"]}
+            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
@@ -41,7 +36,7 @@ const Settings = () => {
             <Ionicons
               name="notifications-outline"
               size={24}
-              color={TEXT_COLOR}
+              color={isDarkMode ? "#ffffff" : "#0070F0"}
             />
           </LinearGradient>
           <View style={styles.sectionContent}>
@@ -65,12 +60,12 @@ const Settings = () => {
           android_ripple={{ color: "rgba(232, 28, 255, 0.1)" }}
         >
           <LinearGradient
-            colors={["#0070F0", "#62B1DD"]}
+            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
           >
-            <Ionicons name="person-outline" size={24} color={TEXT_COLOR} />
+            <Ionicons name="person-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Profile Settings</Text>
@@ -79,18 +74,18 @@ const Settings = () => {
           <Ionicons
             name="chevron-forward-outline"
             size={24}
-            color={PRIMARY_COLOR}
+            color={isDarkMode ? "#ffffff" : "#0070F0"}
           />
         </Pressable>
 
         <View style={styles.section}>
           <LinearGradient
-            colors={["#0070F0", "#62B1DD"]}
+            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
           >
-            <Ionicons name="settings-outline" size={24} color={TEXT_COLOR} />
+            <Ionicons name="settings-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>App Settings</Text>
@@ -101,7 +96,31 @@ const Settings = () => {
           <Ionicons
             name="chevron-forward-outline"
             size={24}
-            color={PRIMARY_COLOR}
+            color={isDarkMode ? "#ffffff" : "#0070F0"}
+          />
+        </View>
+
+        <View style={styles.section}>
+          <LinearGradient
+            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.sectionIconContainer}
+          >
+            <Ionicons name="moon-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
+          </LinearGradient>
+          <View style={styles.sectionContent}>
+            <Text style={styles.sectionTitle}>Dark Mode</Text>
+            <Text style={styles.sectionDescription}>
+              Enable dark mode
+            </Text>
+          </View>
+          <Switch
+            value={isDarkMode}
+            onValueChange={toggleTheme}
+            trackColor={{ false: "#0070F0", true: "#62B1DD" }}
+            thumbColor={isDarkMode ? "#0070F0" : "#224690"}
+            style={styles.switch}
           />
         </View>
       </View>
@@ -122,7 +141,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: "800",
-    color: TEXT_COLOR,
+    color: "#ffffff",
     letterSpacing: 0.5,
   },
   content: {
@@ -148,7 +167,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderRadius: 16,
     backgroundColor: "#ffffff",
-    shadowColor: PRIMARY_COLOR,
+    shadowColor: "#0070F0",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
     shadowRadius: 8,
