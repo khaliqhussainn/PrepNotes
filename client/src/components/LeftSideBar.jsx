@@ -98,7 +98,7 @@ const LeftSidebar = () => {
       height: 88,
       borderRadius: 44,
       borderWidth: 3,
-      borderColor: isDark ? "#FFFFFF" : "#000000",
+      borderColor: isDark ? "#FFFFFF" : "#FFF",
     },
     appName: {
       fontSize: 32,
@@ -137,7 +137,7 @@ const LeftSidebar = () => {
       height: 68,
       borderRadius: 34,
       borderWidth: 2,
-      borderColor: isDark ? "#FFFFFF" : "#000000",
+      borderColor: isDark ? "#FFFFFF" : "#FFF",
     },
     statusIndicator: {
       position: "absolute",
@@ -148,7 +148,7 @@ const LeftSidebar = () => {
       borderRadius: 8,
       backgroundColor: "#4CAF50",
       borderWidth: 2,
-      borderColor: isDark ? "#FFFFFF" : "#000000",
+      borderColor: isDark ? "#FFFFFF" : "#FFF",
     },
     userDetails: {
       flex: 1,
@@ -157,12 +157,12 @@ const LeftSidebar = () => {
     userName: {
       fontSize: 22,
       fontWeight: "700",
-      color: isDark ? "#FFFFFF" : "#000000",
+      color: isDark ? "#FFFFFF" : "#FFF",
       marginBottom: 4,
     },
     userEmail: {
       fontSize: 14,
-      color: isDark ? "#FFFFFF" : "#000000",
+      color: isDark ? "#FFFFFF" : "#FFF",
       marginBottom: 6,
       opacity: 0.9,
     },
@@ -231,12 +231,12 @@ const LeftSidebar = () => {
     navLinkText: {
       fontSize: 16,
       fontWeight: "600",
-      color: isDark ? "#FFFFFF" : "#000000",
+      color: isDark ? "#FFFFFF" : "#FFF",
       marginLeft: 12,
       flex: 1,
     },
     navLinkTextActive: {
-      color: BLUE_COLOR, // Use consistent blue color
+      color: "#FFF", // Use consistent blue color
     },
     footer: {
       marginTop: "auto",
@@ -378,7 +378,7 @@ const LeftSidebar = () => {
               end={{ x: 1, y: 1 }}
               style={styles.statItem}
             >
-              <Ionicons name={stat.icon} size={24} color={isDarkMode ? "#FFFFFF" : "#000000"} />
+              <Ionicons name={stat.icon} size={24} color={isDarkMode ? "#FFFFFF" : "#FFF"} />
               <Text style={styles.statValue}>{stat.value}</Text>
               <Text style={styles.statLabel}>{stat.label}</Text>
             </LinearGradient>
@@ -413,7 +413,7 @@ const LeftSidebar = () => {
                 <Ionicons
                   name={link.icon}
                   size={24}
-                  color={isDarkMode ? "#FFFFFF" : "#000000"}
+                  color={isDarkMode ? "#FFFFFF" : "#FFF"}
                 />
                 <Text style={[styles.navLinkText, activeLink === link.name && styles.navLinkTextActive]}>
                   {link.name}

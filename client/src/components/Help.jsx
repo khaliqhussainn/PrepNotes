@@ -21,7 +21,7 @@ const Help = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#62B1DD", "#ffffff"]}
+        colors={["#0070F0", "#ffffff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -38,7 +38,7 @@ const Help = () => {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.iconContainer}>
-                  <Ionicons name="book-outline" size={24} color="#62B1DD" />
+                  <Ionicons name="book-outline" size={24} color="#0070F0" />
                 </View>
                 <Text style={styles.sectionTitle}>How to Use the App</Text>
               </View>
@@ -80,7 +80,7 @@ const Help = () => {
                   <Ionicons
                     name="help-circle-outline"
                     size={24}
-                    color="#62B1DD"
+                    color="#0070F0"
                   />
                 </View>
                 <Text style={styles.sectionTitle}>
@@ -118,7 +118,7 @@ const Help = () => {
             >
               <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, styles.contactIcon]}>
-                  <Ionicons name="mail-outline" size={24} color="#62B1DD" />
+                  <Ionicons name="mail-outline" size={24} color="#0070F0" />
                 </View>
                 <Text style={styles.sectionTitle}>Contact Support</Text>
               </View>
@@ -126,7 +126,7 @@ const Help = () => {
                 Need additional help? Feel free to reach out to our support team.
               </Text>
               <View style={styles.emailContainer}>
-                <Ionicons name="mail" size={20} color="#62B1DD" />
+                <Ionicons name="mail" size={20} color="#0070F0" />
                 <Text style={styles.emailText}>khaliquehussain7@gmail.com</Text>
               </View>
             </Pressable>
@@ -229,7 +229,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#62B1DD",
+    backgroundColor: "#0070F0",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,

@@ -44,8 +44,8 @@ const HomeScreen = () => {
     },
     {
       id: 3,
-      name: "JHU Entrance PYQ",
-      link: "Entrance",
+      name: "Quiz",
+      link: "Quiz",
       icon: "school-outline",
     },
     {

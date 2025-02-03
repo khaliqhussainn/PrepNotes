@@ -28,7 +28,9 @@ const Settings = () => {
       <View style={styles.content}>
         <View style={styles.section}>
           <LinearGradient
-            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
+            colors={
+              isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
@@ -36,7 +38,7 @@ const Settings = () => {
             <Ionicons
               name="notifications-outline"
               size={24}
-              color={isDarkMode ? "#ffffff" : "#0070F0"}
+              color={isDarkMode ? "#ffffff" : "#FFF"}
             />
           </LinearGradient>
           <View style={styles.sectionContent}>
@@ -60,12 +62,18 @@ const Settings = () => {
           android_ripple={{ color: "rgba(232, 28, 255, 0.1)" }}
         >
           <LinearGradient
-            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
+            colors={
+              isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
           >
-            <Ionicons name="person-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
+            <Ionicons
+              name="person-outline"
+              size={24}
+              color={isDarkMode ? "#ffffff" : "#FFF"}
+            />
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Profile Settings</Text>
@@ -78,48 +86,60 @@ const Settings = () => {
           />
         </Pressable>
 
-        <View style={styles.section}>
-          <LinearGradient
-            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.sectionIconContainer}
-          >
-            <Ionicons name="settings-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
-          </LinearGradient>
-          <View style={styles.sectionContent}>
-            <Text style={styles.sectionTitle}>App Settings</Text>
-            <Text style={styles.sectionDescription}>
-              Customize your experience
-            </Text>
+        <Pressable onPress={() => navigation.navigate("Help")}>
+          <View style={styles.section}>
+            <LinearGradient
+              colors={
+                isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]
+              }
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.sectionIconContainer}
+            >
+              <Ionicons
+                name="settings-outline"
+                size={24}
+                color={isDarkMode ? "#ffffff" : "#FFF"}
+              />
+            </LinearGradient>
+            <View style={styles.sectionContent}>
+              <Text style={styles.sectionTitle}>App Settings</Text>
+              <Text style={styles.sectionDescription}>
+                Customize your experience
+              </Text>
+            </View>
+            <Ionicons
+              name="chevron-forward-outline"
+              size={24}
+              color={isDarkMode ? "#ffffff" : "#0070F0"}
+            />
           </View>
-          <Ionicons
-            name="chevron-forward-outline"
-            size={24}
-            color={isDarkMode ? "#ffffff" : "#0070F0"}
-          />
-        </View>
+        </Pressable>
 
         <View style={styles.section}>
           <LinearGradient
-            colors={isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]}
+            colors={
+              isDarkMode ? ["#000000", "#1a1a1a"] : ["#0070F0", "#62B1DD"]
+            }
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
           >
-            <Ionicons name="moon-outline" size={24} color={isDarkMode ? "#ffffff" : "#0070F0"} />
+            <Ionicons
+              name="moon-outline"
+              size={24}
+              color={isDarkMode ? "#ffffff" : "#FFF"}
+            />
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Dark Mode</Text>
-            <Text style={styles.sectionDescription}>
-              Enable dark mode
-            </Text>
+            <Text style={styles.sectionDescription}>Enable dark mode</Text>
           </View>
           <Switch
             value={isDarkMode}
             onValueChange={toggleTheme}
             trackColor={{ false: "#0070F0", true: "#62B1DD" }}
-            thumbColor={isDarkMode ? "#0070F0" : "#224690"}
+            thumbColor={notificationsEnabled ? "#0070F0" : "#224690"}
             style={styles.switch}
           />
         </View>

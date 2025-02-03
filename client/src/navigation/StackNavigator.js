@@ -15,6 +15,7 @@ import Roadmap from "../components/Roadmap";
 import BottomTabNavigator from "./BottomTabNavigator";
 import AuthScreen from "../screens/AuthScreen";
 import { ThemeProvider } from "../context/ThemeContext";
+import QuizScreen from "../components/QuizScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -92,6 +93,7 @@ const StackNavigator = () => {
           component={BottomTabNavigator}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="Quiz" component={QuizScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </ThemeProvider>
   );
